@@ -1,0 +1,37 @@
+model_architecture:
+  limit_technique_features:
+    input_technique_data_sources: 4
+    input_technique_defenses_bypassed: 2
+    input_technique_detection_name: 4
+    input_technique_mitigation_id: 3
+    input_technique_permissions_required: 2
+    input_technique_platforms: 3
+    input_technique_software_id: 15
+    input_technique_tactics: 2
+  limit_group_features:
+    input_group_software_id: 7
+  group_nn_hidden_layer_widths: 
+    - 128
+    - 64
+    - 64
+  group_nn_hidden_layer_depth: ~
+  technique_nn_hidden_layer_widths: 
+    - 1024
+    - 512
+    - 256
+    - 128
+  technique_nn_hidden_layer_depth: ~
+  nn_output_size: 32
+  regularizer: ~
+  regularizer_weight: ~
+  initializer: ~
+  dropout_rate: 0.2
+  masking: False
+
+train:
+  epochs: 100
+  learning_rate:  1e-5
+  batch_size: 32
+  class_weights: 
+    0: 1.0
+    1: 1.0

@@ -1,0 +1,27 @@
+# version: 2023-11-05
+# config for "data_preprocess_tmp" script
+
+selected_group_features:
+  - 'input_group_software_id'
+selected_technique_features:
+  - 'input_technique_data_sources'
+  - 'input_technique_defenses_bypassed'
+  - 'input_technique_detection_name'
+  - 'input_technique_mitigation_id'
+  - 'input_technique_permissions_required'
+  - 'input_technique_platforms'
+  - 'input_technique_software_id'
+  - 'input_technique_tactics'
+include_unused_techniques: False
+limit_technique_features:
+  input_technique_data_sources: 4
+  input_technique_defenses_bypassed: 2
+  input_technique_detection_name: 5
+  input_technique_mitigation_id: 3
+  input_technique_permissions_required: 2
+  input_technique_platforms: 3
+  input_technique_software_id: 15
+  input_technique_tactics: 2
+
+limit_group_features:
+  input_group_software_id: 15
