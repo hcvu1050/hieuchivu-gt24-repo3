@@ -53,10 +53,10 @@ def main():
     include_unused_techniques = config['include_unused_techniques']
     if config['limit_technique_features'] is not None: limit_technique_features = config['limit_technique_features']
     if config['limit_group_features'] is not None: limit_group_features = config['limit_group_features']
-    collect_data ()
     
     #### CLEANING DATA / SELECTING FEATURES
     
+    collect_data ()
     technique_features, group_features, interaction_matrix = clean_data(include_unused_technique = include_unused_techniques, save_as_csv = save_intermediary_table)
     technique_features, group_features = select_features(technique_features_df= technique_features,
                                                          technique_feature_names= selected_technique_features, 

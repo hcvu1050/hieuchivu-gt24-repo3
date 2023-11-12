@@ -76,6 +76,7 @@ def _get_data():
     
     data_and_setting = {
         'groups_df' :                   (groups_df,         ['ID'],                     [GROUP_ID_NAME]),
+        'groups_description':           (groups_df,         ['ID','description'],       [GROUP_ID_NAME,INPUT_GROUP_DESCRIPTION]),
         'groups_software_df' :          (groups_software_df,['source ID', 'target ID'], [GROUP_ID_NAME, INPUT_GROUP_SOFTWARE_ID ]),
         'techniques_df' :               (techniques_df,     ['ID'],                     [TECHNIQUE_ID_NAME]), 
         'techniques_platforms_df':      (techniques_df,     ['ID', 'platforms'],        [TECHNIQUE_ID_NAME, INPUT_TECHNIQUE_PLATFORMS]),
@@ -86,6 +87,7 @@ def _get_data():
         'techniques_mitigations_df':    (techniques_mitigations_df, ['source ID', 'target ID'],     [INPUT_TECHNIQUE_MITIGATION_ID, TECHNIQUE_ID_NAME]), 
         'techniques_detections_df' :    (techniques_detections_df,  ['source name','target ID'],    [INPUT_TECHNIQUE_DETECTION_NAME, TECHNIQUE_ID_NAME]),
         'techniques_software_df':       (techniques_software_df,    ['source ID', 'target ID'],     [INPUT_TECHNIQUE_SOFTWARE_ID, TECHNIQUE_ID_NAME]),
+        'techniques_description':       (techniques_df,             ['ID','description'],           [TECHNIQUE_ID_NAME,INPUT_TECHNIQUE_DESCRIPTION]),
         'labels_df' :                   (labels_df,                 ['source ID', 'target ID'],     [GROUP_ID_NAME, TECHNIQUE_ID_NAME])
     }
     return data_and_setting
