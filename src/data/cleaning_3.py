@@ -95,7 +95,8 @@ def _get_data():
 def _filter_rename_columns (data_and_setting):
     """
     Based on data_and_setting:\n
-    Filters the selected columns for the collected data, then re-name them
+    Filters the selected columns for the collected data, then re-name them.
+    Returns a dictionary. [key: value] = ["table_name": dataframe]
     """
     res_dfs = {}
     for key in data_and_setting.keys():

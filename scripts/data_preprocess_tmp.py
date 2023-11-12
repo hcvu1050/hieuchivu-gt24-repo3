@@ -14,7 +14,8 @@ sys.path.append("..")
 ### MODULES
 from src.data.utils import batch_save_df_to_csv, batch_save_df_to_pkl
 from src.data.ingestion_2 import collect_data
-from src.data.cleaning_3 import clean_data
+# from src.data.cleaning_3 import clean_data
+from src.data.cleaning_4 import clean_data
 from src.data.select_features import select_features
 from src.data.limit_cardinality import batch_reduce_vals_based_on_nth_most_frequent
 from src.data.make_vocab import make_vocab
@@ -58,55 +59,36 @@ def main():
     
     collect_data ()
     technique_features, group_features, interaction_matrix = clean_data(include_unused_technique = include_unused_techniques, save_as_csv = save_intermediary_table)
-    technique_features, group_features = select_features(technique_features_df= technique_features,
-                                                         technique_feature_names= selected_technique_features, 
-                                                         group_features_df= group_features,
-                                                         group_feature_names=selected_group_features,
-                                                         save_as_csv= save_intermediary_table)
     dfs ={
         'X_group_org': group_features,
         'X_technique_org': technique_features,
     }
     batch_save_df_to_pkl (file_name_dfs= dfs, target_path=TARGET_PATH)
+    # technique_features, group_features = select_features(technique_features_df= technique_features,
+    #                                                      technique_feature_names= selected_technique_features, 
+    #                                                      group_features_df= group_features,
+    #                                                      group_feature_names=selected_group_features,
+    #                                                      save_as_csv= save_intermediary_table)
     
     
-    technique_features = batch_reduce_vals_based_on_nth_most_frequent (technique_features, setting = limit_technique_features)
-    group_features = batch_reduce_vals_based_on_nth_most_frequent (group_features, setting = limit_group_features)
-    # #### LAST STEPS (save the output tables as csv)
+    # technique_features = batch_reduce_vals_based_on_nth_most_frequent (technique_features, setting = limit_technique_features)
+    # group_features = batch_reduce_vals_based_on_nth_most_frequent (group_features, setting = limit_group_features)
+    # # #### LAST STEPS (save the output tables as csv)
 
+    # # )
     
-    # BUILD FEATURES FOR INPUT
+    # make_vocab(group_features)
+    # make_vocab(technique_features)
     
-    # technique_features, group_features = build_features_freq_encode (
-    #     technique_features_df = technique_features,
-    #     technique_feature_names = selected_technique_features,
-    #     group_features_df = group_features,
-    #     group_features_names = selected_group_features,
-    #     save_as_csv= save_intermediary_table
-    # )
-        
-    # technique_features.to_pickle('tmp_technique_features.pkl')
-    # group_features.to_pickle('tmp_group_features.pkl')
-    # technique_features, group_features = build_features_onehot (
-    #     technique_features_df = technique_features,
-    #     technique_feature_names = selected_technique_features,
-    #     group_features_df = group_features,
-    #     group_features_names = selected_group_features,
-    #     save_as_csv= save_intermediary_table
-    # )
-    
-    make_vocab(group_features)
-    make_vocab(technique_features)
-    
-    dfs ={
-        'y_cleaned': interaction_matrix,
-        'X_group': group_features,
-        'X_technique': technique_features,
-    }
-    batch_save_df_to_pkl (file_name_dfs= dfs, target_path=TARGET_PATH, output_list_file = 'PREPROCESSED')
-    print ('---Shapes:')
-    for df in dfs.keys():
-        print ('{df}: {shape}'.format(df = df, shape = dfs[df].shape))
+    # dfs ={
+    #     'y_cleaned': interaction_matrix,
+    #     'X_group': group_features,
+    #     'X_technique': technique_features,
+    # }
+    # batch_save_df_to_pkl (file_name_dfs= dfs, target_path=TARGET_PATH, output_list_file = 'PREPROCESSED')
+    # print ('---Shapes:')
+    # for df in dfs.keys():
+    #     print ('{df}: {shape}'.format(df = df, shape = dfs[df].shape))
     
 if __name__ == '__main__':
     main()
