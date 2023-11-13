@@ -64,15 +64,15 @@ def main():
         'X_technique_org': technique_features,
     }
     batch_save_df_to_pkl (file_name_dfs= dfs, target_path=TARGET_PATH)
-    # technique_features, group_features = select_features(technique_features_df= technique_features,
-    #                                                      technique_feature_names= selected_technique_features, 
-    #                                                      group_features_df= group_features,
-    #                                                      group_feature_names=selected_group_features,
-    #                                                      save_as_csv= save_intermediary_table)
+    technique_features, group_features = select_features(technique_features_df= technique_features,
+                                                         technique_feature_names= selected_technique_features, 
+                                                         group_features_df= group_features,
+                                                         group_feature_names=selected_group_features,
+                                                         save_as_csv= save_intermediary_table)
     
     
-    # technique_features = batch_reduce_vals_based_on_nth_most_frequent (technique_features, setting = limit_technique_features)
-    # group_features = batch_reduce_vals_based_on_nth_most_frequent (group_features, setting = limit_group_features)
+    technique_features = batch_reduce_vals_based_on_nth_most_frequent (technique_features, setting = limit_technique_features)
+    group_features = batch_reduce_vals_based_on_nth_most_frequent (group_features, setting = limit_group_features)
     # # #### LAST STEPS (save the output tables as csv)
 
     # # )

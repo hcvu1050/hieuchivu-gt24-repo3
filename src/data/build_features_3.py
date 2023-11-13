@@ -158,15 +158,3 @@ def _frequency_encode_features (df: pd.DataFrame, id_name: str, feature_names: l
     res_df = pd.merge (left = constant_cols_df, right= freq_encoded_features_df, on = id_name, how = 'left')
     return res_df
 
-def _hashing_encode_features (df: pd.DataFrame, id: str, feature_names: list) -> pd.DataFrame():
-    # get the columns that will not change
-    constant_col_names = [col for col in df.columns if col not in (feature_names+[id])]
-    constant_cols = df[constant_col_names]
-    id_col = df[[id]]
-
-    hash_enc = ce.CountEncoder(normalize=False)
-    hash_encoded_feature_dfs = []
-    # for feature_name in feature_names:
-        
-    
-    return 

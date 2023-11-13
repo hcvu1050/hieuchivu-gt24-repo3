@@ -13,6 +13,7 @@ selected_technique_features:
   - 'input_technique_software_id'
   - 'input_technique_tactics'
 include_unused_techniques: False
+### limit feature cardinality
 limit_technique_features:
   input_technique_data_sources: 4
   input_technique_defenses_bypassed: 2
