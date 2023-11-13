@@ -10,6 +10,7 @@ import os
 import pandas as pd
 import category_encoders as ce
 from . import utils
+import tensorflow as tf
 ROOT_FOLDER = os.path.dirname(os.path.dirname(os.path.abspath('__file__')))
 
 # path to get cleaned data
@@ -170,7 +171,8 @@ def build_feature_sentence_embed (df: pd.DataFrame(), feature_name:str, tokenize
     def embed_sentence (sentence):
         tokens = tokenizer(sentence, padding=True, truncation=True, return_tensors='tf')
         outputs = embed_model(tokens)
-        return outputs.last_hidden_state[:, 0, :]
+        flat_embedding = tf.reshape(outputs.last_hidden_state[:, 0, :], [-1])
+        return flat_embedding.numpy()
     df[feature_name] = df[feature_name].apply(embed_sentence)
     return df
         
