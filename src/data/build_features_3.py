@@ -158,3 +158,19 @@ def _frequency_encode_features (df: pd.DataFrame, id_name: str, feature_names: l
     res_df = pd.merge (left = constant_cols_df, right= freq_encoded_features_df, on = id_name, how = 'left')
     return res_df
 
+def build_feature_sentence_embed (df: pd.DataFrame(), feature_name:str, tokenizer, embed_model):
+    """
+    embedd sentences with bert pretrained model. Define `tokenizer` and `embed_model` to use.
+    For example:\n
+    `tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')`\n
+    `model = TFBertModel.from_pretrained('bert-base-uncased')`
+    """
+    # tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    # model = TFBertModel.from_pretrained('bert-base-uncased')
+    def embed_sentence (sentence):
+        tokens = tokenizer(sentence, padding=True, truncation=True, return_tensors='tf')
+        outputs = embed_model(tokens)
+        return outputs.last_hidden_state[:, 0, :]
+    df[feature_name] = df[feature_name].apply(embed_sentence)
+    return df
+        
