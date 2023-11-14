@@ -1,6 +1,10 @@
 """
 last update: 2023-09-25
 data preprocessing modules specifically for Model1
+tasks includes:
+- splitting data for training, cross-validation, and testing
+- resampling data for training
+- build tensorflow datasets for model1
 """
 
 import os
