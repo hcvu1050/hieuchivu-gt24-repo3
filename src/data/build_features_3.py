@@ -173,6 +173,7 @@ def build_feature_sentence_embed (df: pd.DataFrame(), feature_name:str, tokenize
         outputs = embed_model(tokens)
         flat_embedding = tf.reshape(outputs.last_hidden_state[:, 0, :], [-1])
         return flat_embedding.numpy()
+        # return flat_embedding
     df[feature_name] = df[feature_name].apply(embed_sentence)
     return df
         
