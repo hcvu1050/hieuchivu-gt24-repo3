@@ -18,6 +18,8 @@ data.cleaning_3
 model1.modelpreprocess.build_dataset_2
 """
 INPUT_GROUP_SOFTWARE_ID = 'input_group_software_id'
+INPUT_GROUP_TACTICS = 'input_group_tactics'
+INPUT_GROUP_INTERACTION_RATE = 'input_group_interaction_rate'
 INPUT_GROUP_DESCRIPTION = 'input_group_description'
 
 INPUT_TECHNIQUE_DATA_SOURCES = 'input_technique_data_sources'
@@ -29,3 +31,4 @@ INPUT_TECHNIQUE_PLATFORMS = 'input_technique_platforms'
 INPUT_TECHNIQUE_SOFTWARE_ID = 'input_technique_software_id'
 INPUT_TECHNIQUE_TACTICS = 'input_technique_tactics'
 INPUT_TECHNIQUE_DESCRIPTION = 'input_technique_description'
+INPUT_TECHNIQUE_INTERACTION_RATE = 'input_technique_interaction_rate'

@@ -16,7 +16,7 @@ import sys, os, yaml, argparse
 import pandas as pd
 sys.path.append("..")
 
-from src.models.model1.model_preprocess import get_data, split_by_group, label_resample, align_input_to_labels, build_dataset_2, save_dataset
+from src.models.model1.model_preprocess import get_data, split_by_group, label_resample, align_input_to_labels, build_dataset_3, save_dataset
 from src.data.build_features_3 import build_feature_interaction_frequency, build_feature_used_tactics
 from src.constants import TRAIN_DATASET_FILENAME, TRAIN_CV_DATASET_FILENAME, CV_DATASET_FILENAME, TEST_DATASET_FILENAME
 from src.data.utils import batch_save_df_to_csv
@@ -85,94 +85,94 @@ def main():
     group_features_df.to_pickle ('tmp_m1pp_group.pkl')
     technique_features_df.to_pickle ('tmp_m1pp_technique.pkl')
         
-#     #### 3- (OPTIONAL) OVERSAMPLING train and train_cv, if train_cv size is set to 0, return an empty dataframe
+    #### 3- (OPTIONAL) OVERSAMPLING train and train_cv, if train_cv size is set to 0, return an empty dataframe
 
-#     if resampling is not None: 
-#         print ('--resampling data')
+    if resampling is not None: 
+        print ('--resampling data')
         
-#         train_y_df = label_resample (train_y_df, sampling_strategy= resampling)
-#         if train_cv_size != 0:
-#             train_cv_y_df = label_resample (train_cv_y_df, sampling_strategy= resampling)
-#         if save_intermediary_table:
-#             dfs = {
-#                 'train_y': train_y_df,
-#                 'train_cv_y': train_cv_y_df,
-#             }
-#             batch_save_df_to_csv (dfs, TARGET_PATH, postfix='resampled')
+        train_y_df = label_resample (train_y_df, sampling_strategy= resampling)
+        if train_cv_size != 0:
+            train_cv_y_df = label_resample (train_cv_y_df, sampling_strategy= resampling)
+        if save_intermediary_table:
+            dfs = {
+                'train_y': train_y_df,
+                'train_cv_y': train_cv_y_df,
+            }
+            batch_save_df_to_csv (dfs, TARGET_PATH, postfix='resampled')
     
-#     #### 4- ALIGNING features to labels
-#     ## train set
-#     print ('--aligning data')
-#     train_X_group_df = align_input_to_labels (group_features_df, 
-#                                               object= 'group', 
-#                                               label_df= train_y_df)
-#     train_X_technique_df = align_input_to_labels (technique_features_df, 
-#                                                   object= 'technique', 
-#                                                   label_df= train_y_df)
-#     # train_cv set
-#     train_cv_X_group_df = pd.DataFrame()
-#     train_cv_X_technique_df = pd.DataFrame()
-#     if train_cv_size != 0:
-#         train_cv_X_group_df = align_input_to_labels (group_features_df, 
-#                                                 object= 'group', 
-#                                                 label_df= train_cv_y_df)
-#         train_cv_X_technique_df = align_input_to_labels (technique_features_df, 
-#                                                     object= 'technique', 
-#                                                     label_df= train_cv_y_df)
-#     # cv set
-#     cv_X_group_df = align_input_to_labels (group_features_df, 
-#                                            object= 'group', 
-#                                            label_df= cv_y_df)
-#     cv_X_technique_df = align_input_to_labels (technique_features_df, 
-#                                                object= 'technique', 
-#                                                label_df= cv_y_df)
-#     # test set
-#     test_X_group_df = align_input_to_labels (group_features_df, 
-#                                              object= 'group', 
-#                                              label_df= test_y_df)
-#     test_X_technique_df = align_input_to_labels (technique_features_df, 
-#                                                object= 'technique', 
-#                                                label_df= test_y_df)
+    #### 4- ALIGNING features to labels
+    ## train set
+    print ('--aligning data')
+    train_X_group_df = align_input_to_labels (group_features_df, 
+                                              object= 'group', 
+                                              label_df= train_y_df)
+    train_X_technique_df = align_input_to_labels (technique_features_df, 
+                                                  object= 'technique', 
+                                                  label_df= train_y_df)
+    # train_cv set
+    train_cv_X_group_df = pd.DataFrame()
+    train_cv_X_technique_df = pd.DataFrame()
+    if train_cv_size != 0:
+        train_cv_X_group_df = align_input_to_labels (group_features_df, 
+                                                object= 'group', 
+                                                label_df= train_cv_y_df)
+        train_cv_X_technique_df = align_input_to_labels (technique_features_df, 
+                                                    object= 'technique', 
+                                                    label_df= train_cv_y_df)
+    # cv set
+    cv_X_group_df = align_input_to_labels (group_features_df, 
+                                           object= 'group', 
+                                           label_df= cv_y_df)
+    cv_X_technique_df = align_input_to_labels (technique_features_df, 
+                                               object= 'technique', 
+                                               label_df= cv_y_df)
+    # test set
+    test_X_group_df = align_input_to_labels (group_features_df, 
+                                             object= 'group', 
+                                             label_df= test_y_df)
+    test_X_technique_df = align_input_to_labels (technique_features_df, 
+                                               object= 'technique', 
+                                               label_df= test_y_df)
     
-#     if save_intermediary_table:
-#         dfs = {
-#         'train_X_group':        train_X_group_df,
-#         'train_X_technique':    train_X_technique_df,
-#         'train_cv_X_group':     train_cv_X_group_df,
-#         'train_cv_X_technique': train_cv_X_technique_df,
-#         'cv_X_group':           cv_X_group_df,
-#         'cv_X_technique':       cv_X_technique_df,
-#         'test_X_group':         test_X_group_df,
-#         'test_X_technique':     test_X_technique_df,
-#         }
-#         batch_save_df_to_csv (dfs, TARGET_PATH, postfix= 'aligned')
+    if save_intermediary_table:
+        dfs = {
+        'train_X_group':        train_X_group_df,
+        'train_X_technique':    train_X_technique_df,
+        'train_cv_X_group':     train_cv_X_group_df,
+        'train_cv_X_technique': train_cv_X_technique_df,
+        'cv_X_group':           cv_X_group_df,
+        'cv_X_technique':       cv_X_technique_df,
+        'test_X_group':         test_X_group_df,
+        'test_X_technique':     test_X_technique_df,
+        }
+        batch_save_df_to_csv (dfs, TARGET_PATH, postfix= 'aligned')
         
-#     #### 5- Make tensor flow datasets
-#     ### ❗different from model1_preprocess: build_dataset_2
-#     print ('--building datasets')
+    #### 5- Make tensor flow datasets
+    ### ❗different from model1_preprocess: build_dataset_3
+    print ('--building datasets')
     
-#     train_dataset = build_dataset_2(X_group_df =      train_X_group_df, 
-#                                   X_technique_df =  train_X_technique_df,
-#                                   y_df =            train_y_df, ragged_input= True)
+    train_dataset = build_dataset_3(X_group_df =      train_X_group_df, 
+                                  X_technique_df =  train_X_technique_df,
+                                  y_df =            train_y_df)
     
-#     if train_cv_size != 0:
-#         train_cv_dataset = build_dataset_2(X_group_df=    train_cv_X_group_df, 
-#                                         X_technique_df= train_cv_X_technique_df,
-#                                         y_df=           train_cv_y_df, ragged_input= True)
+    if train_cv_size != 0:
+        train_cv_dataset = build_dataset_3(X_group_df=    train_cv_X_group_df, 
+                                        X_technique_df= train_cv_X_technique_df,
+                                        y_df=           train_cv_y_df)
         
-#     cv_dataset = build_dataset_2(X_group_df =         cv_X_group_df, 
-#                                   X_technique_df =  cv_X_technique_df,
-#                                   y_df =            cv_y_df, ragged_input= True)
+    cv_dataset = build_dataset_3(X_group_df =         cv_X_group_df, 
+                                  X_technique_df =  cv_X_technique_df,
+                                  y_df =            cv_y_df)
     
-#     test_dataset = build_dataset_2(X_group_df =       test_X_group_df, 
-#                                   X_technique_df =  test_X_technique_df,
-#                                   y_df =            test_y_df, ragged_input= True)
+    test_dataset = build_dataset_3(X_group_df =       test_X_group_df, 
+                                  X_technique_df =  test_X_technique_df,
+                                  y_df =            test_y_df)
     
     
-#     save_dataset (train_dataset, TARGET_PATH, TRAIN_DATASET_FILENAME)
-#     if train_cv_size !=0:
-#         save_dataset (train_cv_dataset, TARGET_PATH, TRAIN_CV_DATASET_FILENAME)
-#     save_dataset (cv_dataset, TARGET_PATH, CV_DATASET_FILENAME)
-#     save_dataset (test_dataset, TARGET_PATH, TEST_DATASET_FILENAME)
+    save_dataset (train_dataset, TARGET_PATH, TRAIN_DATASET_FILENAME)
+    if train_cv_size !=0:
+        save_dataset (train_cv_dataset, TARGET_PATH, TRAIN_CV_DATASET_FILENAME)
+    save_dataset (cv_dataset, TARGET_PATH, CV_DATASET_FILENAME)
+    save_dataset (test_dataset, TARGET_PATH, TEST_DATASET_FILENAME)
 if __name__ == '__main__':
     main()

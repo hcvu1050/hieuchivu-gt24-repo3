@@ -24,7 +24,6 @@ SOURCE_PATH = os.path.join (ROOT_FOLDER, 'data/interim')
 SOURCE_FILENAME = 'PREPROCESSED.txt'
 SOURCE_LIST_FILE = os.path.join (SOURCE_PATH, SOURCE_FILENAME)
 PROCESS_RUNNING_MSG = "--runing {}".format(__name__)
-
 def get_data (data_type = 'csv'):
     """
     Read the csv files (filenames stored in PREPROCESSED.txt) and return as DataFrames
@@ -143,8 +142,10 @@ def build_dataset (X_group_df: pd.DataFrame, X_technique_df:pd.DataFrame, y_df:p
         y_tf))
     return res_dataset
 
-GROUP_FEATURE_NAME_LIST = [INPUT_GROUP_SOFTWARE_ID]
-TECHNIQUE_FEATURE_NAME_LIST = [
+RAGGED_GROUP_FEATURES = [INPUT_GROUP_SOFTWARE_ID]
+SCALAR_GROUP_FEATURES = [INPUT_GROUP_INTERACTION_RATE]
+TENSOR_GROUP_FEATURES = [INPUT_GROUP_DESCRIPTION]
+RAGGED_TECHNIQUE_FEATURES = [
     INPUT_TECHNIQUE_DATA_SOURCES,
     INPUT_TECHNIQUE_DEFENSES_BYPASSED,
     INPUT_TECHNIQUE_DETECTION_NAME,
@@ -154,6 +155,8 @@ TECHNIQUE_FEATURE_NAME_LIST = [
     INPUT_TECHNIQUE_SOFTWARE_ID,
     INPUT_TECHNIQUE_TACTICS
 ]
+SCALAR_TECHNIQUE_FEATURES = [INPUT_TECHNIQUE_INTERACTION_RATE]
+TENSOR_TECHNIQUE_FEATURES = [INPUT_TECHNIQUE_DESCRIPTION]
 
 def build_dataset_2 (X_group_df: pd.DataFrame, X_technique_df:pd.DataFrame, y_df:pd.DataFrame, ragged_input: bool):
     """
@@ -167,15 +170,47 @@ def build_dataset_2 (X_group_df: pd.DataFrame, X_technique_df:pd.DataFrame, y_df
     
     input_dict = dict()
     if ragged_input: 
-        for feature_name in GROUP_FEATURE_NAME_LIST:
+        for feature_name in RAGGED_GROUP_FEATURES:
             feature_tf = tf.ragged.constant (X_group_df[feature_name].values, dtype= tf.string)
             input_dict [feature_name] = feature_tf
-        for feature_name in TECHNIQUE_FEATURE_NAME_LIST:
+        for feature_name in RAGGED_TECHNIQUE_FEATURES:
             feature_tf = tf.ragged.constant (X_technique_df[feature_name].values, dtype= tf.string)
             input_dict [feature_name] = feature_tf
     
     y_tf = tf.convert_to_tensor(y_df.values, dtype = tf.float32)
     
+    res_dataset = tf.data.Dataset.from_tensor_slices ((input_dict,y_tf))    
+    return res_dataset
+    
+
+def build_dataset_3 (X_group_df: pd.DataFrame, X_technique_df:pd.DataFrame, y_df:pd.DataFrame):
+    """
+    From the (aligned) feature tables and label table, build and return a tensorflow dataset.
+    Difference from the previous version: each feature has its own key-value pair in the input dictionary
+    NOTE 2023-10-29: the function is assuming ALL inputs are ragged vector (from the dataframe)
+    """
+    X_group_df = X_group_df.drop (columns= GROUP_ID_NAME)
+    X_technique_df = X_technique_df.drop (columns= TECHNIQUE_ID_NAME)
+    y_df = y_df[LABEL_NAME]
+    
+    input_dict = dict()
+    for feature_name in RAGGED_GROUP_FEATURES:
+        feature_tf = tf.ragged.constant (X_group_df[feature_name].values, dtype= tf.string)
+        input_dict [feature_name] = feature_tf
+    feature_tf = tf.constant (X_group_df[[INPUT_GROUP_INTERACTION_RATE]].values, dtype=tf.float32)
+    input_dict [INPUT_GROUP_INTERACTION_RATE] = feature_tf
+    feature_tf = tf.convert_to_tensor (list(X_group_df[INPUT_GROUP_DESCRIPTION].values))
+    input_dict [INPUT_GROUP_DESCRIPTION] = feature_tf
+    
+    for feature_name in RAGGED_TECHNIQUE_FEATURES:
+        feature_tf = tf.ragged.constant (X_technique_df[feature_name].values, dtype= tf.string)
+        input_dict [feature_name] = feature_tf
+    feature_tf = tf.constant (X_technique_df[[INPUT_TECHNIQUE_INTERACTION_RATE]].values, dtype=tf.float32)
+    input_dict [INPUT_TECHNIQUE_INTERACTION_RATE] = feature_tf
+    feature_tf = tf.convert_to_tensor (list(X_technique_df[INPUT_TECHNIQUE_DESCRIPTION].values))
+    input_dict [INPUT_TECHNIQUE_DESCRIPTION] = feature_tf
+    
+    y_tf = tf.convert_to_tensor(y_df.values, dtype = tf.float32)
     res_dataset = tf.data.Dataset.from_tensor_slices ((input_dict,y_tf))    
     return res_dataset
     

@@ -16,9 +16,8 @@ TARGET_PATH = os.path.join(ROOT_FOLDER, 'data/interim')
 PROCESS_RUNNING_MSG = "--runing {}".format(__name__)
 ### END OF CONFIGURATION ###
 
-def make_vocab(df: pd.DataFrame):
-    "(assuming the first column is the ID column)"
-    for feature_name in df.columns[1:]:
+def make_vocab(df: pd.DataFrame, features: list):
+    for feature_name in features:
         unique_vals = df[feature_name].explode().unique()
         # if "" in unique_vals: unique_vals.remove("")
         numpy.savetxt (fname =os.path.join(TARGET_PATH, '{feature_name}_vocab.csv'.format(object = object, feature_name = feature_name)), 
