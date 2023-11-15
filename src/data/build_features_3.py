@@ -122,7 +122,7 @@ def _onehot_encode_features(df: pd.DataFrame, id: str, feature_names: list ) -> 
     res_df = pd.merge (left = constant_cols_df, right= onehot_features_df, on = id, how = 'left')
     return res_df
 
-def _frequency_encode_features (df: pd.DataFrame, id_name: str, feature_names: list) -> pd.DataFrame():
+def _frequency_encode_features (df: pd.DataFrame(), id_name: str, feature_names: list) -> pd.DataFrame():
     """Build frequency encoded features in table `df` for the columns indicated by `feature_names`.\n
     Returns the entire DataFrame with the specified feature frequency encoded.\n
     Work for 2 cases\n
@@ -176,4 +176,25 @@ def build_feature_sentence_embed (df: pd.DataFrame(), feature_name:str, tokenize
         # return flat_embedding
     df[feature_name] = df[feature_name].apply(embed_sentence)
     return df
-        
+
+def build_feature_interaction_frequency (label_df: pd.DataFrame, 
+                                         feature_df: pd.DataFrame, 
+                                         object_ID: str, 
+                                         feature_name: str) -> pd.DataFrame:
+    """Add a feature created by the number of interactions each Technique or Group was involved\n
+    CAUTION: This feature should be built upon TRAINING labels only to avoid data leakage.
+
+    Args:
+        label_df (pd.DataFrame): interation table
+        feature_df (pd.DataFrame): feature table to which the new feature is added to
+        object_ID (str): object ID
+        feature_name (str): column name for the new feature that will be added
+
+    Returns:
+        pd.DataFrame: return the feature table with the added feature column
+    """
+    interaction_count = label_df[label_df['label'] == 1.0][object_ID].value_counts()
+    res_df = pd.merge (left = feature_df, right = interaction_count, on = object_ID, how = 'left')
+    res_df.rename (columns= {'count': feature_name}, inplace= True)
+    res_df[feature_name].fillna (0.0, inplace= True)
+    return res_df
