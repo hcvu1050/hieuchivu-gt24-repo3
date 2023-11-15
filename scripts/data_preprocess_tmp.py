@@ -10,6 +10,7 @@ data preprocess pipeline V3.2. Steps:
 """
 
 import sys, os, argparse, yaml, pickle
+from transformers import BertTokenizer, TFBertModel
 sys.path.append("..")
 ### MODULES
 from src.data.utils import batch_save_df_to_csv, batch_save_df_to_pkl
@@ -19,7 +20,7 @@ from src.data.cleaning_4 import clean_data
 from src.data.select_features import select_features
 from src.data.limit_cardinality import batch_reduce_vals_based_on_nth_most_frequent
 from src.data.make_vocab import make_vocab
-# from src.data.build_features_3 import build_features_onehot, build_features_freq_encode
+from src.data.build_features_3 import build_feature_sentence_embed
 
 ROOT_FOLDER = os.path.dirname(os.path.dirname(os.path.abspath('__file__')))
 CONFIG_FOLDER = os.path.join (ROOT_FOLDER, 'configs')
@@ -73,7 +74,13 @@ def main():
     
     technique_features = batch_reduce_vals_based_on_nth_most_frequent (technique_features, setting = limit_technique_features)
     group_features = batch_reduce_vals_based_on_nth_most_frequent (group_features, setting = limit_group_features)
-    # # #### LAST STEPS (save the output tables as csv)
+    
+    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    embed_model = TFBertModel.from_pretrained('bert-base-uncased')
+    group_features = build_feature_sentence_embed (group_features, 'input_group_description', tokenizer, embed_model)
+    technique_features = build_feature_sentence_embed (technique_features, 'input_technique_description', tokenizer, embed_model)
+    
+    # # #### LAST STEPS (save the output tables as pkl)
 
     # # )
     
