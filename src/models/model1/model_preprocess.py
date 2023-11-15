@@ -142,7 +142,7 @@ def build_dataset (X_group_df: pd.DataFrame, X_technique_df:pd.DataFrame, y_df:p
         y_tf))
     return res_dataset
 
-RAGGED_GROUP_FEATURES = [INPUT_GROUP_SOFTWARE_ID]
+RAGGED_GROUP_FEATURES = [INPUT_GROUP_SOFTWARE_ID, INPUT_GROUP_TACTICS]
 SCALAR_GROUP_FEATURES = [INPUT_GROUP_INTERACTION_RATE]
 TENSOR_GROUP_FEATURES = [INPUT_GROUP_DESCRIPTION]
 RAGGED_TECHNIQUE_FEATURES = [
@@ -214,7 +214,6 @@ def build_dataset_3 (X_group_df: pd.DataFrame, X_technique_df:pd.DataFrame, y_df
     res_dataset = tf.data.Dataset.from_tensor_slices ((input_dict,y_tf))    
     return res_dataset
     
-
 def save_dataset (dataset, target_folder, file_name):
     file_path = os.path.join (target_folder, file_name)
     tf.data.Dataset.save (dataset, file_path)
