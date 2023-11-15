@@ -80,15 +80,15 @@ def main():
     # make_vocab(group_features)
     # make_vocab(technique_features)
     
-    # dfs ={
-    #     'y_cleaned': interaction_matrix,
-    #     'X_group': group_features,
-    #     'X_technique': technique_features,
-    # }
-    # batch_save_df_to_pkl (file_name_dfs= dfs, target_path=TARGET_PATH, output_list_file = 'PREPROCESSED')
-    # print ('---Shapes:')
-    # for df in dfs.keys():
-    #     print ('{df}: {shape}'.format(df = df, shape = dfs[df].shape))
+    dfs ={
+        'y_cleaned': interaction_matrix,
+        'X_group': group_features,
+        'X_technique': technique_features,
+    }
+    batch_save_df_to_pkl (file_name_dfs= dfs, target_path=TARGET_PATH, output_list_file = 'PREPROCESSED')
+    print ('---Shapes:')
+    for df in dfs.keys():
+        print ('{df}: {shape}'.format(df = df, shape = dfs[df].shape))
     
 if __name__ == '__main__':
     main()

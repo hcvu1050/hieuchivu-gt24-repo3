@@ -3,6 +3,7 @@
 
 selected_group_features:
   - 'input_group_software_id'
+  - 'input_group_description'
 selected_technique_features:
   - 'input_technique_data_sources'
   - 'input_technique_defenses_bypassed'
@@ -12,6 +13,7 @@ selected_technique_features:
   - 'input_technique_platforms'
   - 'input_technique_software_id'
   - 'input_technique_tactics'
+  - 'input_technique_description'
 include_unused_techniques: False
 ### limit feature cardinality
 limit_technique_features:

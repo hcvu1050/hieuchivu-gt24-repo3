@@ -11,7 +11,7 @@ GROUP_TABLE_PREFIX = 'X_group'
 RESULT_FILE_POSTFIX = 'selected_features'
 
 def batch_reduce_vals_based_on_nth_most_frequent (df: pd.DataFrame, setting: dict):
-    for col in df.columns[1:]:
+    for col in setting.keys():
         df = reduce_vals_based_on_nth_most_frequent (df = df, feature_name=col, n = setting[col])
     return df
 
