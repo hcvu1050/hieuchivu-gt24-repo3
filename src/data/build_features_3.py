@@ -218,6 +218,8 @@ def build_feature_used_tactics (label_df: pd.DataFrame(),
     pos_y = label_df[label_df['label'] == 1]
     g_tactic = pd.merge (left = pos_y[[group_ID,'technique_ID']], right = technique_df[['technique_ID','input_technique_tactics']], 
                      how = 'left', on = 'technique_ID')
+    g_tactic = pd.merge (left = group_df[[group_ID]], right= g_tactic, how = 'left', on = group_ID)
+    g_tactic['input_technique_tactics'].fillna ('', inplace= True)
     g_tactic = g_tactic.explode('input_technique_tactics').groupby(group_ID, as_index=False).agg(list)[[group_ID,'input_technique_tactics']]
     res_df = pd.merge (left = group_df, right = g_tactic, on = group_ID , how = 'left' )
     res_df.rename (columns= {'input_technique_tactics': feature_name}, inplace= True)
