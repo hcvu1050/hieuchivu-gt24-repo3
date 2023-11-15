@@ -11,6 +11,7 @@ import pandas as pd
 import category_encoders as ce
 from . import utils
 import tensorflow as tf
+from sklearn.preprocessing import StandardScaler
 ROOT_FOLDER = os.path.dirname(os.path.dirname(os.path.abspath('__file__')))
 
 # path to get cleaned data
@@ -180,7 +181,7 @@ def build_feature_sentence_embed (df: pd.DataFrame(), feature_name:str, tokenize
 def build_feature_interaction_frequency (label_df: pd.DataFrame, 
                                          feature_df: pd.DataFrame, 
                                          object_ID: str, 
-                                         feature_name: str) -> pd.DataFrame:
+                                         feature_name: str, normalize: bool = True) -> pd.DataFrame:
     """Add a feature created by the number of interactions each Technique or Group was involved\n
     CAUTION: This feature should be built upon TRAINING labels only to avoid data leakage.
 
@@ -197,4 +198,7 @@ def build_feature_interaction_frequency (label_df: pd.DataFrame,
     res_df = pd.merge (left = feature_df, right = interaction_count, on = object_ID, how = 'left')
     res_df.rename (columns= {'count': feature_name}, inplace= True)
     res_df[feature_name].fillna (0.0, inplace= True)
+    if normalize: 
+        scaler = StandardScaler()
+        res_df[feature_name] = scaler.fit_transform (res_df[[feature_name]])
     return res_df
