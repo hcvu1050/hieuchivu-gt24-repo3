@@ -178,10 +178,10 @@ def build_feature_sentence_embed (df: pd.DataFrame(), feature_name:str, tokenize
     df[feature_name] = df[feature_name].apply(embed_sentence)
     return df
 
-def build_feature_interaction_frequency (label_df: pd.DataFrame, 
-                                         feature_df: pd.DataFrame, 
+def build_feature_interaction_frequency (label_df: pd.DataFrame(), 
+                                         feature_df: pd.DataFrame(), 
                                          object_ID: str, 
-                                         feature_name: str, normalize: bool = True) -> pd.DataFrame:
+                                         feature_name: str, normalize: bool = True) -> pd.DataFrame():
     """Add a feature created by the number of interactions each Technique or Group was involved\n
     CAUTION: This feature should be built upon TRAINING labels only to avoid data leakage.
 
@@ -201,4 +201,24 @@ def build_feature_interaction_frequency (label_df: pd.DataFrame,
     if normalize: 
         scaler = StandardScaler()
         res_df[feature_name] = scaler.fit_transform (res_df[[feature_name]])
+    return res_df
+
+def build_feature_used_tactics (label_df: pd.DataFrame(), 
+                                group_df: pd.DataFrame(), 
+                                technique_df: pd.DataFrame(),
+                                feature_name: str,
+                                group_ID: str = 'group_ID', 
+                                ) -> pd.DataFrame():
+    """
+    Add feature for Group containing interacted Tactics of each Group.
+    Each feature value is a list of strings (of tactic names)
+    CAUTION: This feature should be built upon TRAINING labels only to avoid data leakage.
+
+    """
+    pos_y = label_df[label_df['label'] == 1]
+    g_tactic = pd.merge (left = pos_y[[group_ID,'technique_ID']], right = technique_df[['technique_ID','input_technique_tactics']], 
+                     how = 'left', on = 'technique_ID')
+    g_tactic = g_tactic.explode('input_technique_tactics').groupby(group_ID, as_index=False).agg(list)[[group_ID,'input_technique_tactics']]
+    res_df = pd.merge (left = group_df, right = g_tactic, on = group_ID , how = 'left' )
+    res_df.rename (columns= {'input_technique_tactics': feature_name}, inplace= True)
     return res_df
