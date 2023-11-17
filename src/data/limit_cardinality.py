@@ -17,7 +17,7 @@ def batch_reduce_vals_based_on_nth_most_frequent (df: pd.DataFrame, setting: dic
 
 def reduce_vals_based_on_nth_most_frequent (df: pd.DataFrame(), feature_name: str, n: int):
     """
-    if the length of current feature vals is less than or equal to the limit, do not remove the vals
+    Note: if the size of current feature vals is less than or equal to the limit, do not remove the vals
     """
     all_vals = df[feature_name].explode()
     selected_vals = list(all_vals.value_counts().sort_values(ascending=False).index)[:n]
