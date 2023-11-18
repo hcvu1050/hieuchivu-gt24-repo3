@@ -21,7 +21,7 @@ REPORT_FOLDER = os.path.join (ROOT_FOLDER, 'reports', 'model1')
 TRAINED_MODELS_FOLDER = os.path.join (ROOT_FOLDER, 'trained_models', 'model1')
 
 from src.models.model1.dataloader import load_datasets
-from src.models.model1.model_v0_5 import Model1
+from src.models.model1.model_v0_6 import Model1
 
 from src.models.model1.model_preprocess import  align_input_to_labels, build_dataset_2
 def main():
@@ -81,7 +81,7 @@ def main():
     technique_software_id_vocab = pd.read_csv('../data/interim/input_technique_software_id_vocab.csv', header= None)
     
     vocabs = {
-    'group_software_id' : pd.concat ([group_software_id_vocab, technique_software_id_vocab])[0].dropna().unique(),
+    'input_software_id' : pd.concat ([group_software_id_vocab, technique_software_id_vocab])[0].dropna().unique(),
     'input_tactics' : technique_tactics_vocab[0].dropna().values,   
     'input_technique_data_sources' : technique_data_sources_vocab[0].dropna().values,
     'input_technique_defenses_bypassed' : technique_defenses_bypassed_vocab[0].dropna().values,

@@ -310,13 +310,14 @@ class Model1(keras.Model):
         # 👉 concatenate 
         group_concat = self.concatenate([
             self.input_group_interaction_rate,
+            self.input_group_description,
             group_software_id,
             group_tatics,
-            self.input_group_description,
         ])
         
         technique_concat = self.concatenate ([
             self.input_technique_interaction_rate,
+            self.input_technique_description,
             technique_data_sources,
             technique_defenses_bypassed,
             technique_detection_name,
@@ -325,7 +326,6 @@ class Model1(keras.Model):
             technique_platforms,
             technique_software_id,
             technique_tactics, 
-            self.input_technique_description
         ])
         
         # 👉 FNNs
