@@ -1,6 +1,6 @@
 """
 last update: 2023-10-29 script to work with ragged tensors (for embedding layers downstream)
-- Model1 preprocessing steps (srcript version 2)
+- Model1 preprocessing steps (srcript version 3)
 - Usage: data preprocess pipeline specific to model 1. ❗Only works after running `data_preprocess_tmp`. Steps: 
     1. Load the data exported by running `data_preprocess_tmp`
     2. Split the data into train, train-cv, cv, and test set with ratios defined by a yaml file in `configs/folder`

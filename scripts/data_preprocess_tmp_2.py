@@ -1,25 +1,24 @@
 """
-last update: 2023-10-09 - Added option to include unused Techniques in interaction matrix
-data preprocess pipeline V3.2. Steps:
-1. Extract the data from `data/raw/enterprise-attack.json` and save as pands dataframe (`src.data.ingestion2`)
-2. Clean the data to retreive only the portion that can be used for training (`src.data.cleaning2`)
-3. Select the features that will be used for training (`src.data.select_features`)
-    - The selected features are defined in a yaml file in `configs/` folder. 
-    The file name is one of the arguments when running the script
-4. Export the tables as pickle files
+- `data_preprocess_tmp_2`
+	- Config(s): `data_pp5` 
+		- include unused techniques
+	1. Collect the data
+	2. Clean the data with all candidate feature
+	3. Embed description sentences in Group and Technique feature
+	4. Exports: (1)Group features, (2)Technique features, (3)Interaction matrix
 """
 
-import sys, os, argparse, yaml, pickle
+import sys, os, argparse, yaml
 from transformers import BertTokenizer, TFBertModel
 sys.path.append("..")
 ### MODULES
-from src.data.utils import batch_save_df_to_csv, batch_save_df_to_pkl
+from src.data.utils import  batch_save_df_to_pkl
 from src.data.ingestion_2 import collect_data
 # from src.data.cleaning_3 import clean_data
 from src.data.cleaning_4 import clean_data
-from src.data.select_features import select_features
-from src.data.limit_cardinality import batch_reduce_vals_based_on_nth_most_frequent
-from src.data.make_vocab import make_vocab
+# from src.data.select_features import select_features
+# from src.data.limit_cardinality import batch_reduce_vals_based_on_nth_most_frequent
+# from src.data.make_vocab import make_vocab
 from src.data.build_features_3 import build_feature_sentence_embed
 
 ROOT_FOLDER = os.path.dirname(os.path.dirname(os.path.abspath('__file__')))
@@ -50,32 +49,32 @@ def main():
     formatted_text = yaml.dump(config, default_flow_style=False, indent=2, sort_keys=False)
     print ('---Config for data preprocessing\n',formatted_text)
     
-    selected_group_features = config['selected_group_features']
-    selected_technique_features = config['selected_technique_features']
+    # selected_group_features = config['selected_group_features']
+    # selected_technique_features = config['selected_technique_features']
     include_unused_techniques = config['include_unused_techniques']
-    limit_technique_features = config['limit_technique_features']
-    limit_group_features = config['limit_group_features']
+    # limit_technique_features = config['limit_technique_features']
+    # limit_group_features = config['limit_group_features']
     
     #### CLEANING DATA / SELECTING FEATURES
     
     collect_data ()
     technique_features, group_features, interaction_matrix = clean_data(include_unused_technique = include_unused_techniques, save_as_csv = save_intermediary_table)
-    dfs ={
-        'X_group_org': group_features,
-        'X_technique_org': technique_features,
-    }
-    batch_save_df_to_pkl (file_name_dfs= dfs, target_path=TARGET_PATH)
+    # dfs ={
+    #     'X_group_org': group_features,
+    #     'X_technique_org': technique_features,
+    # }
+    # batch_save_df_to_pkl (file_name_dfs= dfs, target_path=TARGET_PATH)
     
-    technique_features, group_features = select_features(technique_features_df= technique_features,
-                                                         technique_feature_names= selected_technique_features, 
-                                                         group_features_df= group_features,
-                                                         group_feature_names=selected_group_features,
-                                                         save_as_csv= save_intermediary_table)
+    # technique_features, group_features = select_features(technique_features_df= technique_features,
+    #                                                      technique_feature_names= selected_technique_features, 
+    #                                                      group_features_df= group_features,
+    #                                                      group_feature_names=selected_group_features,
+    #                                                      save_as_csv= save_intermediary_table)
     
-    if limit_group_features != None:
-        technique_features = batch_reduce_vals_based_on_nth_most_frequent (technique_features, setting = limit_technique_features)
-    if limit_technique_features != None:
-        group_features = batch_reduce_vals_based_on_nth_most_frequent (group_features, setting = limit_group_features)
+    # if limit_group_features != None:
+    #     technique_features = batch_reduce_vals_based_on_nth_most_frequent (technique_features, setting = limit_technique_features)
+    # if limit_technique_features != None:
+    #     group_features = batch_reduce_vals_based_on_nth_most_frequent (group_features, setting = limit_group_features)
     
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     embed_model = TFBertModel.from_pretrained('bert-base-uncased')
