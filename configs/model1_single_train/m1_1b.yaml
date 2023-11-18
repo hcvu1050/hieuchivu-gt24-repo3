@@ -9,20 +9,21 @@
 #   undersample: 0.2
 
 model_architecture:
-  limit_technique_features:
-    input_technique_data_sources: 4
-    input_technique_defenses_bypassed: 2
-    input_technique_detection_name: 5
-    input_technique_mitigation_id: 3
-    input_technique_permissions_required: 2
-    input_technique_platforms: 3
-    input_tactics: 2
-    input_software_id: 15
+  limit_technique_features: ~
+    # input_technique_data_sources: 4
+    # input_technique_defenses_bypassed: 2
+    # input_technique_detection_name: 5
+    # input_technique_mitigation_id: 3
+    # input_technique_permissions_required: 2
+    # input_technique_platforms: 3
+    # input_tactics: 2
+    # input_software_id: 15
 
-  limit_group_features:
-    input_software_id: 15
-    input_tactics: 2
+  limit_group_features: ~
+    # input_software_id: 15
+    # input_tactics: 2
   group_nn_hidden_layer_widths: 
+    - 512
     - 256
     - 128
     - 64
@@ -32,6 +33,7 @@ model_architecture:
     - 512
     - 256
     - 128
+    - 64
   technique_nn_hidden_layer_depth: ~
   nn_output_size: 32
   regularizer: ~
@@ -41,7 +43,7 @@ model_architecture:
   masking: True
 
 train:
-  epochs: 1
+  epochs: 50
   learning_rate:  1e-5
   batch_size: 16
   class_weights: 
