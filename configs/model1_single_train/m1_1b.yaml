@@ -30,11 +30,12 @@ model_architecture:
     input_technique_mitigation_id: 3
     input_technique_permissions_required: 2
     input_technique_platforms: 3
-    input_technique_software_id: 15
-    input_technique_tactics: 2
+    input_tactics: 2
+    input_software_id: 15
 
   limit_group_features:
-    input_group_software_id: 15
+    input_software_id: 15
+    input_tactics: 2
   group_nn_hidden_layer_widths: 
     - 256
     - 128

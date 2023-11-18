@@ -34,42 +34,62 @@ def main():
     args = parser.parse_args()
     config_filename = args.config
 
-    #### LOAD CONFIGS FROM CONFIG FILE
+    #### 👉LOAD CONFIGS FROM CONFIG FILE
     if not config_filename.endswith ('.yaml'): config_filename += '.yaml'
     config_file_path = os.path.join (CONFIG_FOLDER, SINGLE_TRAIN_FOLDER_NAME,config_filename)
     with open (config_file_path, 'r') as config_file:
         config = yaml.safe_load (config_file)
-        
+    
+    ## Model config
     model_architecture_config = config['model_architecture']
+    
+    if model_architecture_config['limit_technique_features'] is None:
+        model_architecture_config['limit_technique_features'] = dict()
+        model_architecture_config['limit_technique_features']['input_technique_data_sources'] = None
+        model_architecture_config['limit_technique_features']['input_technique_defenses_bypassed'] = None
+        model_architecture_config['limit_technique_features']['input_technique_detection_name'] = None
+        model_architecture_config['limit_technique_features']['input_technique_mitigation_id'] = None
+        model_architecture_config['limit_technique_features']['input_technique_permissions_required'] = None
+        model_architecture_config['limit_technique_features']['input_technique_platforms'] = None
+        model_architecture_config['limit_technique_features']['input_tactics'] = None
+        model_architecture_config['limit_technique_features']['input_software_id'] = None
+    
+    if model_architecture_config['limit_group_features'] is None:
+        model_architecture_config['limit_group_features'] = dict()
+        model_architecture_config['limit_group_features']['input_software_id'] = None
+        model_architecture_config['limit_group_features']['input_tactics'] = None
+    
+    ## Train config
     train_config = config['train']
     batch_size = train_config['batch_size']
     epochs = train_config['epochs']
     learning_rate = float (train_config['learning_rate'])
     class_weights = train_config['class_weights']
+    
     formatted_text = yaml.dump(config, default_flow_style=False, indent=2, sort_keys=False)
     print ('---config for Model1\n',formatted_text)
 
     #### 👉LOAD VOCABS
-    input_group_software_id = pd.read_csv('../data/interim/input_group_software_id_vocab.csv', header = None)
-    input_technique_data_sources = pd.read_csv('../data/interim/input_technique_data_sources_vocab.csv', header= None)
-    input_technique_defenses_bypassed = pd.read_csv('../data/interim/input_technique_defenses_bypassed_vocab.csv', header= None)
-    input_technique_detection_name = pd.read_csv('../data/interim/input_technique_detection_name_vocab.csv', header= None)
-    input_technique_mitigation_id = pd.read_csv('../data/interim/input_technique_mitigation_id_vocab.csv', header= None)
-    input_technique_permissions_required = pd.read_csv('../data/interim/input_technique_permissions_required_vocab.csv', header= None)
-    input_technique_platforms = pd.read_csv('../data/interim/input_technique_platforms_vocab.csv', header= None)
-    input_technique_software_id = pd.read_csv('../data/interim/input_technique_software_id_vocab.csv', header= None)
-    input_technique_tactics = pd.read_csv('../data/interim/input_technique_tactics_vocab.csv', header= None)
+    group_software_id_vocab = pd.read_csv('../data/interim/input_group_software_id_vocab.csv', header = None)
+    technique_tactics_vocab = pd.read_csv('../data/interim/input_technique_tactics_vocab.csv', header= None)
+    technique_data_sources_vocab = pd.read_csv('../data/interim/input_technique_data_sources_vocab.csv', header= None)
+    technique_defenses_bypassed_vocab = pd.read_csv('../data/interim/input_technique_defenses_bypassed_vocab.csv', header= None)
+    technique_detection_name_vocab = pd.read_csv('../data/interim/input_technique_detection_name_vocab.csv', header= None)
+    technique_mitigation_id_vocab = pd.read_csv('../data/interim/input_technique_mitigation_id_vocab.csv', header= None)
+    technique_permissions_required_vocab = pd.read_csv('../data/interim/input_technique_permissions_required_vocab.csv', header= None)
+    technique_platforms_vocab = pd.read_csv('../data/interim/input_technique_platforms_vocab.csv', header= None)
+    technique_software_id_vocab = pd.read_csv('../data/interim/input_technique_software_id_vocab.csv', header= None)
     
     vocabs = {
-    'input_group_software_id' : input_group_software_id[0].dropna().values,
-    'input_technique_data_sources' : input_technique_data_sources[0].dropna().values,
-    'input_technique_defenses_bypassed' : input_technique_defenses_bypassed[0].dropna().values,
-    'input_technique_detection_name' : input_technique_detection_name[0].dropna().values,
-    'input_technique_mitigation_id' : input_technique_mitigation_id[0].dropna().values,
-    'input_technique_permissions_required' : input_technique_permissions_required[0].dropna().values,
-    'input_technique_platforms' : input_technique_platforms[0].dropna().values,
-    'input_technique_software_id' : input_technique_software_id[0].dropna().values,
-    'input_technique_tactics' : input_technique_tactics[0].dropna().values    
+    'group_software_id' : pd.concat ([group_software_id_vocab, technique_software_id_vocab])[0].dropna().unique(),
+    'input_tactics' : technique_tactics_vocab[0].dropna().values,   
+    'input_technique_data_sources' : technique_data_sources_vocab[0].dropna().values,
+    'input_technique_defenses_bypassed' : technique_defenses_bypassed_vocab[0].dropna().values,
+    'input_technique_detection_name' : technique_detection_name_vocab[0].dropna().values,
+    'input_technique_mitigation_id' : technique_mitigation_id_vocab[0].dropna().values,
+    'input_technique_permissions_required' : technique_permissions_required_vocab[0].dropna().values,
+    'input_technique_platforms' : technique_platforms_vocab[0].dropna().values,
+    'input_technique_software_id' : technique_software_id_vocab[0].dropna().values,
     }
     #### 👉LOAD DATASETS, THEN CONFIG DATASETS
     train_dataset, cv_dataset, test_dataset  = load_datasets(empty_train_cv= True, return_feature_info=False)
@@ -95,7 +115,7 @@ def main():
                    metrics = [tf.keras.metrics.AUC(curve = 'PR', from_logits= True, name = 'auc-pr')],
                    )
     
-    ### TRAIN MODEL 
+    #### 👉 TRAIN MODEL 
     start_time = time.time()
     history = model.fit (
         train_dataset,
@@ -109,7 +129,7 @@ def main():
     elapsed_seconds = int (elapsed_time % 60)
     print(f"Training completed in {elapsed_minutes} minutes and {elapsed_seconds} seconds")
     
-    #### SAVE HISTORY
+    #### 👉 SAVE HISTORY
     history_df = pd.DataFrame(history.history)
     file_name = '{config_file}.csv'.format(config_file = args.config)
     if not os.path.exists(os.path.join (REPORT_FOLDER, 'train_loss', SINGLE_TRAIN_FOLDER_NAME)):
@@ -118,7 +138,7 @@ def main():
     file_path = os.path.join (REPORT_FOLDER, 'train_loss', SINGLE_TRAIN_FOLDER_NAME,file_name)
     history_df.to_csv(file_path, index=False)
     
-    ### SAVE TRAINED MODEL
+    #### 👉 SAVE TRAINED MODEL
     
     base_config_filename = config_filename.split(".")[0]
     model_file_name = base_config_filename
