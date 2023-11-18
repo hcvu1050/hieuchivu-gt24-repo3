@@ -6,6 +6,7 @@
     3. Select features for Group and Technique.
     3b. Engineer some additional features for Group and Technique
     3c. (Opt) Limit feature cardinality
+    4. Make vocab for the features
     4. (Opt) Re-sampling train and train-cv data
     5. Aligning features to labels
     6. Create tensorflow Datasets for train and train-cv sets.
@@ -22,6 +23,7 @@ from src.models.model1.model_preprocess import get_data, split_by_group, label_r
 from src.data.select_features import select_features
 from src.data.limit_cardinality import batch_reduce_vals_based_on_nth_most_frequent
 from src.data.build_features_3 import build_feature_interaction_frequency, build_feature_used_tactics
+from src.data.make_vocab import make_vocab
 from src.constants import TRAIN_DATASET_FILENAME, TRAIN_CV_DATASET_FILENAME, CV_DATASET_FILENAME, TEST_DATASET_FILENAME
 from src.data.utils import batch_save_df_to_csv
 
@@ -109,8 +111,24 @@ def main():
         
     group_features_df.to_pickle ('../data/interim/m1pp_group.pkl')
     technique_features_df.to_pickle ('../data/interim/m1pp_technique.pkl')
-        
-    #### 3- (OPTIONAL) OVERSAMPLING train and train_cv, if train_cv size is set to 0, return an empty dataframe
+    
+    #### 👉Make vocab
+    make_vocab(group_features_df, [
+                   'input_group_software_id',
+                   'input_group_tactics'
+               ])
+    make_vocab (technique_features_df, [
+        'input_technique_data_sources',
+        'input_technique_defenses_bypassed',
+        'input_technique_detection_name',
+        'input_technique_mitigation_id',
+        'input_technique_permissions_required',
+        'input_technique_platforms',
+        'input_technique_software_id',
+        'input_technique_tactics',
+        'input_technique_description',
+    ])
+    #### - (OPTIONAL) OVERSAMPLING train and train_cv, if train_cv size is set to 0, return an empty dataframe
 
     if resampling is not None: 
         print ('--resampling data')
