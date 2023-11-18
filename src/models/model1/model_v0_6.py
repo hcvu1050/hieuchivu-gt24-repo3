@@ -182,7 +182,7 @@ class Model1(keras.Model):
         ## 👉 input layers
         ### Group Inputs
         self.input_group_software_id =              tf.keras.Input(shape=(None,), ragged=True, dtype= tf.string, name = 'input_group_software_id')
-        self.input_group_tactics =                  tf.keras.Input(shape=(None,), ragged=True, dtype= tf.string, name = 'input_group_software_id')
+        self.input_group_tactics =                  tf.keras.Input(shape=(None,), ragged=True, dtype= tf.string, name = 'input_group_tactics')
         self.input_group_interaction_rate =         tf.keras.layers.InputLayer(input_shape=(1,), dtype=tf.float32, name = 'input_group_interaction_rate')
         self.input_group_description =              tf.keras.layers.InputLayer(input_shape=(768,), dtype=tf.float32, name = 'input_group_description')
         
@@ -201,8 +201,8 @@ class Model1(keras.Model):
         
         ## 👉 vectorization layers
         ### group and technique input shares two text vectorization layers: software and tactics
-        self.vectorize_software_id =              tf.keras.layers.TextVectorization (max_tokens=1000, output_mode= 'int', output_sequence_length= limit_group_features['input_group_software_id'],split = None, vocabulary=vocabs ['input_group_software_id'], name = 'vectorize_group_software_id')
-        self.vectorize_tactics =              tf.keras.layers.TextVectorization (max_tokens=1000, output_mode= 'int', output_sequence_length= limit_technique_features['input_technique_tactics']             ,split = None, vocabulary=vocabs ['input_technique_tactics'], name = 'vectorize_technique_tactics')
+        self.vectorize_software_id =              tf.keras.layers.TextVectorization (max_tokens=1000, output_mode= 'int', output_sequence_length= limit_group_features['input_software_id'],split = None, vocabulary=vocabs ['input_software_id'], name = 'vectorize_software_id')
+        self.vectorize_tactics =              tf.keras.layers.TextVectorization (max_tokens=1000, output_mode= 'int', output_sequence_length= limit_technique_features['input_tactics']     ,split = None, vocabulary=vocabs ['input_tactics'], name = 'vectorize_tactics')
         # self.vectorize_software_id =          tf.keras.layers.TextVectorization (max_tokens=1000, output_mode= 'int', output_sequence_length= limit_technique_features['input_technique_software_id']         ,split = None, vocabulary=vocabs ['input_technique_software_id'], name = 'vectorize_technique_software_id')
         
         self.vectorize_technique_data_sources =         tf.keras.layers.TextVectorization (max_tokens=1000, output_mode= 'int', output_sequence_length= limit_technique_features['input_technique_data_sources']        ,split = None, vocabulary=vocabs ['input_technique_data_sources'], name = 'vectorize_technique_data_sources')
@@ -214,8 +214,8 @@ class Model1(keras.Model):
         
         ## 👉 embed layers
         ### group and technique input shares two embedding layers: software and tactics
-        self.embed_software_id =              tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_group_software_id']),             input_length= limit_group_features['input_group_software_id'],                  output_dim=20, mask_zero= True, name = 'embed_group_software_id')
-        self.embed_tactics =                tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_technique_tactics']),             input_length= limit_technique_features['input_technique_tactics'],              output_dim=5, mask_zero= True, name = 'embed_technique_tactics')
+        self.embed_software_id =              tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_software_id']), input_length= limit_group_features['input_software_id'],    output_dim=20, mask_zero= True, name = 'embed_software_id')
+        self.embed_tactics =                tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_tactics']),       input_length= limit_technique_features['input_tactics'],    output_dim=5, mask_zero= True, name = 'embed_tactics')
         # self.embed_software_id =          tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_technique_software_id']),         input_length= limit_technique_features['input_technique_software_id'],          output_dim=20, mask_zero= True, name = 'embed_technique_software_id')
         
         self.embed_technique_data_sources =         tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_technique_data_sources']),        input_length= limit_technique_features['input_technique_data_sources'],         output_dim=10, mask_zero= True, name = 'embed_technique_data_sources')
@@ -224,9 +224,6 @@ class Model1(keras.Model):
         self.embed_technique_mitigation_id =        tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_technique_mitigation_id']),       input_length= limit_technique_features['input_technique_mitigation_id'],        output_dim=10, mask_zero= True, name = 'embed_technique_mitigation_id')
         self.embed_technique_permissions_required = tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_technique_permissions_required']),input_length= limit_technique_features['input_technique_permissions_required'], output_dim=5, mask_zero= True, name = 'embed_technique_permissions_required')
         self.embed_technique_platforms =            tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_technique_platforms']),           input_length= limit_technique_features['input_technique_platforms'],            output_dim=5, mask_zero= True, name = 'embed_technique_platforms')
-        
-        ## 👉 flatten layer
-        self.flatten = tf.keras.layers.Flatten ()
         
         ## 👉 concatenate layer
         self.concatenate = tf.keras.layers.Concatenate (axis=1)
