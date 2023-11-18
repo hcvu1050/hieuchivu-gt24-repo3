@@ -91,12 +91,7 @@ def main():
                                                          technique_feature_names= selected_technique_features, 
                                                          group_features_df= group_features_df,
                                                          group_feature_names=selected_group_features,
-                                                         save_as_csv= save_intermediary_table)    
-    
-    
-    technique_features_df = batch_reduce_vals_based_on_nth_most_frequent (technique_features_df, setting = limit_technique_features)
-    group_features_df = batch_reduce_vals_based_on_nth_most_frequent (group_features_df, setting = limit_group_features)
-    
+                                                         save_as_csv= save_intermediary_table)        
     
     #### 3b- Build addtional features features
     technique_features_df = build_feature_interaction_frequency (label_df= train_y_df, feature_df= technique_features_df, object_ID= 'technique_ID', feature_name = 'input_technique_interaction_rate')
