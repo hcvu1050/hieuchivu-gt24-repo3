@@ -1,13 +1,15 @@
 """
-last update: 2023-10-29 script to work with ragged tensors (for embedding layers downstream)
 - Model1 preprocessing steps (srcript version 3)
-- Usage: data preprocess pipeline specific to model 1. ❗Only works after running `data_preprocess_tmp`. Steps: 
-    1. Load the data exported by running `data_preprocess_tmp`
-    2. Split the data into train, train-cv, cv, and test set with ratios defined by a yaml file in `configs/folder`
-    3. (Optional step) Re-sampling train and train-cv data
-    4. Aligning features to labels
-    5. Create tensorflow Datasets for train and train-cv sets.
-    6. Save the preprocessed data to `data/preprocessed/model1`
+- Usage: data preprocess pipeline specific to model 1. ❗Only works after running `data_preprocess_tmp_2`. Steps: 
+    1. Load the data exported by running `data_preprocess_tmp`, including (1)Group feature, (2)Technique feature, and (3)Interaction matrix
+    2. Split the data into train , cv, and test set with ratios defined by a yaml file in `configs/folder`
+    3. Select features for Group and Technique.
+    3b. Engineer some additional features for Group and Technique
+    3c. (Opt) Limit feature cardinality
+    4. (Opt) Re-sampling train and train-cv data
+    5. Aligning features to labels
+    6. Create tensorflow Datasets for train and train-cv sets.
+    7. Save the preprocessed data to `data/preprocessed/model1`
 - Args: 
     - `config`: name of the `yaml` file in `configs/` that will be used to define the ratios for splitting the data sets.
     - `-lo`  (means 'last only', defaul = `True`): optional argument to save the intermediary data while going through the preprocessing steps.
@@ -17,6 +19,8 @@ import pandas as pd
 sys.path.append("..")
 
 from src.models.model1.model_preprocess import get_data, split_by_group, label_resample, align_input_to_labels, build_dataset_3, save_dataset
+from src.data.select_features import select_features
+from src.data.limit_cardinality import batch_reduce_vals_based_on_nth_most_frequent
 from src.data.build_features_3 import build_feature_interaction_frequency, build_feature_used_tactics
 from src.constants import TRAIN_DATASET_FILENAME, TRAIN_CV_DATASET_FILENAME, CV_DATASET_FILENAME, TEST_DATASET_FILENAME
 from src.data.utils import batch_save_df_to_csv
@@ -45,7 +49,7 @@ def main():
     if not os.path.exists(TARGET_PATH):
         os.makedirs(TARGET_PATH)
         
-    #### LOAD CONFIGS FROM CONFIG FILE
+    #### 👉LOAD CONFIGS FROM CONFIG FILE
     if not config_file_name.endswith ('.yaml'): config_file_name += '.yaml'
     config_file_path = os.path.join (CONFIG_FOLDER,config_file_name)
     with open (config_file_path, 'r') as config_file:
@@ -54,13 +58,17 @@ def main():
     print ('---config for model 1 preprocessing:\n',formatted_text)
     
     data_split = config['data_split']
+    selected_group_features = config['selected_group_features']
+    selected_technique_features = config['selected_technique_features']
+    limit_technique_features = config['limit_technique_features']
+    limit_group_features = config['limit_group_features']
     resampling = config['resampling']
     train_size, train_cv_size, cv_size, test_size = data_split
     
-    #### 1- LOAD DATA
+    #### 👉1- LOAD DATA
     group_features_df, technique_features_df, labels_df = get_data(data_type = 'pkl')
     
-    #### 2- SPLIT LABELS
+    #### 👉2- SPLIT LABELS
     print ('--splitting data')
     train_y_df, remain_y_df  = split_by_group (labels_df, ratio = train_size)
     train_cv_y_df, remain_y_df = split_by_group (remain_y_df, 
@@ -76,14 +84,31 @@ def main():
         }
         batch_save_df_to_csv (dfs, TARGET_PATH, postfix= 'split')
     
+    #### 👉3- SELECT FEATURES
+    technique_features_df, group_features_df = select_features(technique_features_df= technique_features_df,
+                                                         technique_feature_names= selected_technique_features, 
+                                                         group_features_df= group_features_df,
+                                                         group_feature_names=selected_group_features,
+                                                         save_as_csv= save_intermediary_table)    
     
-    #### 3a- Build the remaining features
+    
+    technique_features_df = batch_reduce_vals_based_on_nth_most_frequent (technique_features_df, setting = limit_technique_features)
+    group_features_df = batch_reduce_vals_based_on_nth_most_frequent (group_features_df, setting = limit_group_features)
+    
+    
+    #### 3b- Build addtional features features
+    technique_features_df = build_feature_interaction_frequency (label_df= train_y_df, feature_df= technique_features_df, object_ID= 'technique_ID', feature_name = 'input_technique_interaction_rate')
     group_features_df = build_feature_interaction_frequency (label_df= train_y_df, feature_df= group_features_df, object_ID= 'group_ID', feature_name = 'input_group_interaction_rate')
     group_features_df = build_feature_used_tactics (label_df= train_y_df, group_df= group_features_df, technique_df= technique_features_df, feature_name= 'input_group_tactics')
-    technique_features_df = build_feature_interaction_frequency (label_df= train_y_df, feature_df= technique_features_df, object_ID= 'technique_ID', feature_name = 'input_technique_interaction_rate')
     
-    group_features_df.to_pickle ('tmp_m1pp_group.pkl')
-    technique_features_df.to_pickle ('tmp_m1pp_technique.pkl')
+    #### 👉3c- limit feature cardinality
+    if limit_technique_features is not None:
+        technique_features_df = batch_reduce_vals_based_on_nth_most_frequent (technique_features_df, setting = limit_technique_features)
+    if limit_group_features is not None:
+        group_features_df = batch_reduce_vals_based_on_nth_most_frequent (group_features_df, setting = limit_group_features)
+        
+    group_features_df.to_pickle ('../data/interim/m1pp_group.pkl')
+    technique_features_df.to_pickle ('../data/interim/m1pp_technique.pkl')
         
     #### 3- (OPTIONAL) OVERSAMPLING train and train_cv, if train_cv size is set to 0, return an empty dataframe
 
