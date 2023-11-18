@@ -296,16 +296,16 @@ class Model1(keras.Model):
 
         # 👉 element-wise averaging
         group_software_id = tf.reduce_mean (group_software_id, axis = 1)
-        group_tatics = tf.reducemean (group_tatics, axis = 1)
+        group_tatics = tf.reduce_mean (group_tatics, axis = 1)
         
-        technique_data_sources = tf.reducemean (technique_data_sources, axis = 1)
-        technique_defenses_bypassed = tf.reducemean (technique_defenses_bypassed, axis = 1)
-        technique_detection_name = tf.reducemean (technique_detection_name, axis = 1)
-        technique_mitigation_id = tf.reducemean (technique_mitigation_id, axis = 1)
-        technique_permissions_required = tf.reducemean (technique_permissions_required, axis = 1)
-        technique_platforms = tf.reducemean (technique_platforms, axis = 1)
-        technique_software_id = tf.reducemean (technique_software_id, axis = 1)
-        technique_tactics = tf.reducemean (technique_tactics, axis = 1)
+        technique_data_sources = tf.reduce_mean (technique_data_sources, axis = 1)
+        technique_defenses_bypassed = tf.reduce_mean (technique_defenses_bypassed, axis = 1)
+        technique_detection_name = tf.reduce_mean (technique_detection_name, axis = 1)
+        technique_mitigation_id = tf.reduce_mean (technique_mitigation_id, axis = 1)
+        technique_permissions_required = tf.reduce_mean (technique_permissions_required, axis = 1)
+        technique_platforms = tf.reduce_mean (technique_platforms, axis = 1)
+        technique_software_id = tf.reduce_mean (technique_software_id, axis = 1)
+        technique_tactics = tf.reduce_mean (technique_tactics, axis = 1)
         
         # 👉 concatenate 
         group_concat = self.concatenate([
