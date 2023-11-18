@@ -337,3 +337,11 @@ class Model1(keras.Model):
         
         dot_product = self.dot_product ([norm_output_Group, norm_output_Technique])
         return dot_product
+
+    def get_config (self):
+        config = super(Model1, self).get_config()
+        config.update ({
+            "Group_NN": self.Group_NN,
+            "Technique_NN": self.Technique_NN
+        })
+        return config 
