@@ -70,8 +70,8 @@ def clean_data(include_unused_technique: bool, target_path = TARGET_PATH , save_
     ### Interaction Matrix    
     interaction_matrix = _make_interaction_matrix(
         include_unused = include_unused_technique,
-        user_IDs_df= filtered_dfs['groups_df'],
-        item_IDs_df= filtered_dfs['techniques_df'],
+        group_IDs_df= filtered_dfs['groups_df'],
+        technique_IDs_df= filtered_dfs['techniques_df'],
         positive_cases= filtered_dfs['labels_df']
     )
     if save_as_csv:
@@ -138,16 +138,16 @@ def _filter_rename_columns (data_and_setting):
         res_dfs[key] = df
     return res_dfs
 
-def _make_interaction_matrix (user_IDs_df, 
-                              item_IDs_df, 
-                              positive_cases, include_unused: bool) -> pd.DataFrame():
+def _make_interaction_matrix (group_IDs_df, 
+                              technique_IDs_df, 
+                              positive_cases, include_unused: bool = False) -> pd.DataFrame():
     """Creates an interaction matrix (all possible combination) between Groups and Techniques based on the IDs.
     `include_unused`: option to include Techniques that are not used by any Group in interaction matrix.
     """
     if include_unused == False:
-        item_IDs_df = item_IDs_df [item_IDs_df[TECHNIQUE_ID_NAME].isin (positive_cases[TECHNIQUE_ID_NAME])]
+        technique_IDs_df = technique_IDs_df [technique_IDs_df[TECHNIQUE_ID_NAME].isin (positive_cases[TECHNIQUE_ID_NAME])]
     #else:
-    group_technique_interactions = pd.merge (user_IDs_df, item_IDs_df, how = 'cross')
+    group_technique_interactions = pd.merge (group_IDs_df, technique_IDs_df, how = 'cross')
     # positive_cases ['label'] = 1
     positive_cases = positive_cases.assign (label = 1)
     group_technique_interaction_matrix = pd.merge (
@@ -158,6 +158,74 @@ def _make_interaction_matrix (user_IDs_df,
     )
     group_technique_interaction_matrix[LABEL_NAME].fillna (0, inplace= True)
     return group_technique_interaction_matrix
+
+def _make_interaction_matrix_2 (group_IDs_df, 
+                                technique_IDs_df,
+                                positive_cases,
+                                technique_tactics_df = None, 
+                                tactics_order_df =  None,
+                                include_unused: bool = False, 
+                                limit_technique_based_on_earliest_tactic_stage: bool = None,
+                                limit_group_instances: int = None) -> pd.DataFrame():
+    """Creates an interaction matrix (both positive and negative) between Groups and Techniques based on the IDs.
+    `include_unused`: option to include Techniques that are not used by any Group in interaction matrix.
+    """
+    if include_unused == False:
+        technique_IDs_df = technique_IDs_df [technique_IDs_df[TECHNIQUE_ID_NAME].isin (positive_cases[TECHNIQUE_ID_NAME])]
+    #else:
+    group_technique_interactions = pd.merge (group_IDs_df, technique_IDs_df, how = 'cross')
+    # positive_cases ['label'] = 1
+    positive_cases = positive_cases.assign (label = 1)
+    
+    group_technique_interaction_matrix = pd.merge (
+        left = group_technique_interactions,
+        right = positive_cases, 
+        on = [GROUP_ID_NAME, TECHNIQUE_ID_NAME], 
+        how = 'left'
+    )
+    group_technique_interaction_matrix[LABEL_NAME].fillna (0, inplace= True)
+    
+    if limit_technique_based_on_earliest_tactic_stage: 
+        ### 👉 limit interaction based on earliest tactic stage: 
+        # for a group, the interaction examples are limited to the earliest known tactic stage of the group
+        # - get technique's earliest tactic stage
+        technique_earliest_stage = pd.merge (
+            left = technique_tactics_df.explode ('input_technique_tactics'),
+            right = tactics_order_df,
+            how = 'left', left_on= 'input_technique_tactics', right_on= 'tactic_name'
+        )
+        technique_earliest_stage = technique_earliest_stage.groupby ('technique_ID', as_index= False).agg(min)
+        technique_earliest_stage.drop(columns = ['input_technique_tactics', 'tactic_name'], inplace= True)
+        technique_earliest_stage.rename (columns= {'stage_order': 'technique_earliest_stage'}, inplace= True)
+
+        # - get group's earliest tactic stage
+        group_earliest_stage = pd.merge (
+            left = positive_cases, 
+            right = technique_earliest_stage,
+            on = 'technique_ID', how = 'left'
+        )
+        group_earliest_stage = group_earliest_stage[['group_ID', 'technique_earliest_stage']].groupby ('group_ID', as_index= False).agg(min)
+        group_earliest_stage.rename (columns= {'technique_earliest_stage': 'group_earliest_stage'}, inplace= True)
+        group_technique_interaction_matrix = pd.merge (
+            left = group_technique_interaction_matrix,
+            right = technique_earliest_stage,
+            how = 'left', on = 'technique_ID'
+        )
+        group_technique_interaction_matrix = pd.merge (
+            left = group_technique_interaction_matrix, 
+            right = group_earliest_stage, 
+            how = 'left', on = 'group_ID'
+        )
+        group_technique_interaction_matrix = group_technique_interaction_matrix [group_technique_interaction_matrix ['group_earliest_stage'] <= group_technique_interaction_matrix ['technique_earliest_stage']]
+        group_technique_interaction_matrix.drop(columns= ['group_earliest_stage', 'technique_earliest_stage'], inplace= True)
+        
+    if limit_group_instances is not None:
+        filtered_groups = positive_cases['group_ID'].value_counts()
+        filtered_groups = list(filtered_groups[filtered_groups >= limit_group_instances].index)
+        group_technique_interaction_matrix = group_technique_interaction_matrix[group_technique_interaction_matrix['group_ID'].isin (filtered_groups)]
+        
+    return group_technique_interaction_matrix
+
 
 def _process_string_vals (full_id_df: pd.DataFrame(), feature_df: pd.DataFrame(), feature_name: str = None, feature_sep_char = ','):
     """process string values for feature
