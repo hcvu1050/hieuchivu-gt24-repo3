@@ -214,7 +214,7 @@ class Model1(keras.Model):
         
         ## 👉 embed layers
         ### group and technique input shares two embedding layers: software and tactics
-        self.embed_software_id =              tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_software_id']), input_length= limit_group_features['input_software_id'],    output_dim=20, mask_zero= True, name = 'embed_software_id')
+        self.embed_software_id =              tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_software_id']), input_length= limit_group_features['input_software_id'],    output_dim=30, mask_zero= True, name = 'embed_software_id')
         self.embed_tactics =                tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_tactics']),       input_length= limit_technique_features['input_tactics'],    output_dim=5, mask_zero= True, name = 'embed_tactics')
         # self.embed_software_id =          tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_technique_software_id']),         input_length= limit_technique_features['input_technique_software_id'],          output_dim=20, mask_zero= True, name = 'embed_technique_software_id')
         

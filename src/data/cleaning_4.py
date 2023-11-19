@@ -24,7 +24,7 @@ TARGET_PATH = os.path.join(ROOT_FOLDER, 'data/interim')
 PROCESS_RUNNING_MSG = "--runing {}".format(__name__)
 ### END OF CONFIGURATION ###
 
-### MAIN FUNCTION
+### 👉 MAIN FUNCTION
 def clean_data(include_unused_technique: bool, target_path = TARGET_PATH , save_as_csv = True):
     """Filters the columns needed for training, then combines all features of a object group into one table.\n
     Returns 3 tables:\n
@@ -208,62 +208,3 @@ def _combine_features (IDs_df: pd.DataFrame(), feature_dfs: list):
         res_df = pd.merge (left = res_df, right= feature_df, on=id_name, how = 'left')
     return res_df
 
-# def _combine_features (object: str, dfs: dict, feature_sep_char = ',') -> pd.DataFrame():
-#     """Combines the features of the object (Group or Technique) based of the tables of features stored in dfs. 
-#     In dfs, the key indicates if its value belongs to Group or Technique based on the key's prefix.
-#     The features are always merged based on the list of ALL object IDs (group_ID or technique_ID).
-
-#     Args:
-#         object (str): "group" or "technique"
-#         dfs (dict): dfs stores the filtered tables for the object
-
-#     Returns:
-#         pd.DataFrame: Return the merged table of the object
-#     """
-#     object_features = pd.DataFrame()
-#     id_name = ''
-#     if object == 'group':
-#         all_id_df = dfs['groups_df']
-#         object_features = all_id_df #initialize the result dataframe. starts with the list of IDs
-#         id_name = GROUP_ID_NAME
-#     elif object == 'technique':
-#         all_id_df = dfs['techniques_df'] #initialize the result dataframe. starts with the list of IDs
-#         object_features = all_id_df
-#         id_name = TECHNIQUE_ID_NAME
-    
-#     # The features are merged with the list of object IDs (group_ID or technique_ID)
-#     # unique_vals = numpy.empty(shape = (0,))
-#     for key in [key for key in dfs.keys() if (key.startswith (object)) and key not in (['groups_df', 'techniques_df'])]:
-#         feature_df = dfs[key]
-#         id_df = feature_df[[id_name]]
-#         feature_name = [col_name for col_name in feature_df.columns if col_name != id_name][0]
-#         # string values preprocessing 
-#         feature_processed = feature_df[feature_name].str.lower()
-#         feature_processed = feature_processed.str.replace (r'[-/:]\s*', r' ', regex = True)
-#         feature_processed = feature_processed.str.replace(r',\s*',',', regex = True)
-#         feature_processed = feature_processed.str.replace(r'(?<=[a-zA-Z0-9])\s(?=[a-zA-Z0-9])','_', regex = True)
-#         feature_df = pd.concat ([id_df, feature_processed], axis= 1)
-#         multivalued = feature_processed.str.contains(feature_sep_char, case=False).any()
-#         if multivalued:
-#             feature_df[feature_name] = feature_df[feature_name].str.split(feature_sep_char)
-#             feature_df = feature_df.explode(column= feature_name,ignore_index = False)
-        
-
-#         # unique_vals = feature_df[feature_name].dropna().unique()
-#         # numpy.savetxt (fname =os.path.join(TARGET_PATH, '{feature_name}_vocab.csv'.format(object = object, feature_name = feature_name)), 
-#         #                X=unique_vals, delimiter= ",",fmt='%s')
-        
-#         feature_df = pd.merge (
-#             left = all_id_df, right=feature_df, on = id_name, how = 'left'
-#         )
-#         feature_df[feature_name].fillna (value = '', inplace = True)
-        
-#         feature_df = feature_df.groupby(id_name, as_index= False).agg(list)
-#         object_features = pd.merge (
-#             left = object_features,
-#             right= feature_df,
-#             on = id_name,
-#             how = 'left'
-#         )
-    
-#     return object_features
