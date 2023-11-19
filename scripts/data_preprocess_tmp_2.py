@@ -9,16 +9,13 @@
 """
 
 import sys, os, argparse, yaml
+import pandas as pd
 from transformers import BertTokenizer, TFBertModel
 sys.path.append("..")
 ### MODULES
 from src.data.utils import  batch_save_df_to_pkl
 from src.data.ingestion_2 import collect_data
-# from src.data.cleaning_3 import clean_data
 from src.data.cleaning_4 import clean_data
-# from src.data.select_features import select_features
-# from src.data.limit_cardinality import batch_reduce_vals_based_on_nth_most_frequent
-# from src.data.make_vocab import make_vocab
 from src.data.build_features_3 import build_feature_sentence_embed
 
 ROOT_FOLDER = os.path.dirname(os.path.dirname(os.path.abspath('__file__')))
@@ -48,40 +45,27 @@ def main():
         
     formatted_text = yaml.dump(config, default_flow_style=False, indent=2, sort_keys=False)
     print ('---Config for data preprocessing\n',formatted_text)
-    
-    # selected_group_features = config['selected_group_features']
-    # selected_technique_features = config['selected_technique_features']
     include_unused_techniques = config['include_unused_techniques']
-    # limit_technique_features = config['limit_technique_features']
-    # limit_group_features = config['limit_group_features']
+    limit_technique_based_on_earliest_tactic_stage = config['limit_technique_based_on_earliest_tactic_stage']
+    limit_group_instances = config['limit_group_instances']
     
     #### CLEANING DATA / SELECTING FEATURES
     
+    tactics_order_df = pd.read_csv ('../data/raw/tactics_order.csv', index_col=0)
     collect_data ()
-    technique_features, group_features, interaction_matrix = clean_data(include_unused_technique = include_unused_techniques, save_as_csv = save_intermediary_table)
-    # dfs ={
-    #     'X_group_org': group_features,
-    #     'X_technique_org': technique_features,
-    # }
-    # batch_save_df_to_pkl (file_name_dfs= dfs, target_path=TARGET_PATH)
-    
-    # technique_features, group_features = select_features(technique_features_df= technique_features,
-    #                                                      technique_feature_names= selected_technique_features, 
-    #                                                      group_features_df= group_features,
-    #                                                      group_feature_names=selected_group_features,
-    #                                                      save_as_csv= save_intermediary_table)
-    
-    # if limit_group_features != None:
-    #     technique_features = batch_reduce_vals_based_on_nth_most_frequent (technique_features, setting = limit_technique_features)
-    # if limit_technique_features != None:
-    #     group_features = batch_reduce_vals_based_on_nth_most_frequent (group_features, setting = limit_group_features)
-    
+    technique_features, group_features, interaction_matrix = clean_data(
+        include_unused_techniques = include_unused_techniques, 
+        tactics_order_df= tactics_order_df,
+        limit_technique_based_on_earliest_tactic_stage= limit_technique_based_on_earliest_tactic_stage,
+        limit_group_instances=limit_group_instances,
+        save_as_csv = save_intermediary_table)
+
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     embed_model = TFBertModel.from_pretrained('bert-base-uncased')
     group_features = build_feature_sentence_embed (group_features, 'input_group_description', tokenizer, embed_model)
     technique_features = build_feature_sentence_embed (technique_features, 'input_technique_description', tokenizer, embed_model)
     
-    # # #### LAST STEPS (save the output tables as pkl)
+    # #### LAST STEPS (save the output tables as pkl)
     
     dfs ={
         'y_cleaned': interaction_matrix,

@@ -1,1 +1,3 @@
 include_unused_techniques: False
+limit_technique_based_on_earliest_tactic_stage: True
+limit_group_instances: ~

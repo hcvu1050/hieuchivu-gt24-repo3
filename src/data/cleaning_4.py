@@ -25,7 +25,11 @@ PROCESS_RUNNING_MSG = "--runing {}".format(__name__)
 ### END OF CONFIGURATION ###
 
 ### 👉 MAIN FUNCTION
-def clean_data(include_unused_technique: bool, target_path = TARGET_PATH , save_as_csv = True):
+def clean_data(include_unused_techniques: bool = False, 
+               tactics_order_df = None,
+                limit_technique_based_on_earliest_tactic_stage: bool = None,
+                limit_group_instances: int = None,
+                target_path = TARGET_PATH , save_as_csv = True):
     """Filters the columns needed for training, then combines all features of a object group into one table.\n
     Returns 3 tables:\n
     a. Technique features\n
@@ -68,11 +72,15 @@ def clean_data(include_unused_technique: bool, target_path = TARGET_PATH , save_
 
     technique_features_df = _combine_features (IDs_df= technique_full_IDs_df, feature_dfs= technique_string_feature_dfs + [technique_sentence_feature_df])
     ### Interaction Matrix    
-    interaction_matrix = _make_interaction_matrix(
-        include_unused = include_unused_technique,
-        group_IDs_df= filtered_dfs['groups_df'],
-        technique_IDs_df= filtered_dfs['techniques_df'],
-        positive_cases= filtered_dfs['labels_df']
+    interaction_matrix = _make_interaction_matrix_2(
+        group_IDs_df= group_features_df[[GROUP_ID_NAME]],
+        technique_IDs_df= technique_features_df[[TECHNIQUE_ID_NAME]],
+        positive_cases= filtered_dfs['labels_df'],
+        technique_tactics_df= technique_features_df[[TECHNIQUE_ID_NAME, INPUT_TECHNIQUE_TACTICS]],
+        tactics_order_df= tactics_order_df,
+        include_unused_techniques = include_unused_techniques,
+        limit_technique_based_on_earliest_tactic_stage= limit_technique_based_on_earliest_tactic_stage,
+        limit_group_instances = limit_group_instances,
     )
     if save_as_csv:
         res_dfs = {
@@ -164,13 +172,13 @@ def _make_interaction_matrix_2 (group_IDs_df,
                                 positive_cases,
                                 technique_tactics_df = None, 
                                 tactics_order_df =  None,
-                                include_unused: bool = False, 
+                                include_unused_techniques: bool = False, 
                                 limit_technique_based_on_earliest_tactic_stage: bool = None,
                                 limit_group_instances: int = None) -> pd.DataFrame():
     """Creates an interaction matrix (both positive and negative) between Groups and Techniques based on the IDs.
     `include_unused`: option to include Techniques that are not used by any Group in interaction matrix.
     """
-    if include_unused == False:
+    if include_unused_techniques == False:
         technique_IDs_df = technique_IDs_df [technique_IDs_df[TECHNIQUE_ID_NAME].isin (positive_cases[TECHNIQUE_ID_NAME])]
     #else:
     group_technique_interactions = pd.merge (group_IDs_df, technique_IDs_df, how = 'cross')
@@ -189,6 +197,7 @@ def _make_interaction_matrix_2 (group_IDs_df,
         ### 👉 limit interaction based on earliest tactic stage: 
         # for a group, the interaction examples are limited to the earliest known tactic stage of the group
         # - get technique's earliest tactic stage
+        technique_tactics_df.to_csv ('tmp_t_tactics_df.csv')
         technique_earliest_stage = pd.merge (
             left = technique_tactics_df.explode ('input_technique_tactics'),
             right = tactics_order_df,
@@ -197,7 +206,7 @@ def _make_interaction_matrix_2 (group_IDs_df,
         technique_earliest_stage = technique_earliest_stage.groupby ('technique_ID', as_index= False).agg(min)
         technique_earliest_stage.drop(columns = ['input_technique_tactics', 'tactic_name'], inplace= True)
         technique_earliest_stage.rename (columns= {'stage_order': 'technique_earliest_stage'}, inplace= True)
-
+        # technique_earliest_stage.to_csv ('tmp_t_earliest_stage.csv')
         # - get group's earliest tactic stage
         group_earliest_stage = pd.merge (
             left = positive_cases, 
@@ -206,6 +215,7 @@ def _make_interaction_matrix_2 (group_IDs_df,
         )
         group_earliest_stage = group_earliest_stage[['group_ID', 'technique_earliest_stage']].groupby ('group_ID', as_index= False).agg(min)
         group_earliest_stage.rename (columns= {'technique_earliest_stage': 'group_earliest_stage'}, inplace= True)
+        # group_earliest_stage.to_csv ('tmp_g_earliest_stage.csv')
         group_technique_interaction_matrix = pd.merge (
             left = group_technique_interaction_matrix,
             right = technique_earliest_stage,
@@ -217,7 +227,7 @@ def _make_interaction_matrix_2 (group_IDs_df,
             how = 'left', on = 'group_ID'
         )
         group_technique_interaction_matrix = group_technique_interaction_matrix [group_technique_interaction_matrix ['group_earliest_stage'] <= group_technique_interaction_matrix ['technique_earliest_stage']]
-        group_technique_interaction_matrix.drop(columns= ['group_earliest_stage', 'technique_earliest_stage'], inplace= True)
+        group_technique_interaction_matrix.drop(columns= ['group_earliest_stage', 'technique_earliest_stage', 'tactic_ID'], inplace= True)
         
     if limit_group_instances is not None:
         filtered_groups = positive_cases['group_ID'].value_counts()
