@@ -72,15 +72,21 @@ def clean_data(include_unused_techniques: bool = False,
 
     technique_features_df = _combine_features (IDs_df= technique_full_IDs_df, feature_dfs= technique_string_feature_dfs + [technique_sentence_feature_df])
     ### Interaction Matrix    
-    interaction_matrix = _make_interaction_matrix_2(
+    # interaction_matrix = _make_interaction_matrix_2(
+    #     group_IDs_df= group_features_df[[GROUP_ID_NAME]],
+    #     technique_IDs_df= technique_features_df[[TECHNIQUE_ID_NAME]],
+    #     positive_cases= filtered_dfs['labels_df'],
+    #     technique_tactics_df= technique_features_df[[TECHNIQUE_ID_NAME, INPUT_TECHNIQUE_TACTICS]],
+    #     tactics_order_df= tactics_order_df,
+    #     include_unused_techniques = include_unused_techniques,
+    #     limit_technique_based_on_earliest_tactic_stage= limit_technique_based_on_earliest_tactic_stage,
+    #     limit_group_instances = limit_group_instances,
+    # )
+    interaction_matrix = _make_interaction_matrix (
         group_IDs_df= group_features_df[[GROUP_ID_NAME]],
         technique_IDs_df= technique_features_df[[TECHNIQUE_ID_NAME]],
         positive_cases= filtered_dfs['labels_df'],
-        technique_tactics_df= technique_features_df[[TECHNIQUE_ID_NAME, INPUT_TECHNIQUE_TACTICS]],
-        tactics_order_df= tactics_order_df,
         include_unused_techniques = include_unused_techniques,
-        limit_technique_based_on_earliest_tactic_stage= limit_technique_based_on_earliest_tactic_stage,
-        limit_group_instances = limit_group_instances,
     )
     if save_as_csv:
         res_dfs = {
@@ -148,11 +154,11 @@ def _filter_rename_columns (data_and_setting):
 
 def _make_interaction_matrix (group_IDs_df, 
                               technique_IDs_df, 
-                              positive_cases, include_unused: bool = False) -> pd.DataFrame():
+                              positive_cases, include_unused_techniques: bool = False) -> pd.DataFrame():
     """Creates an interaction matrix (all possible combination) between Groups and Techniques based on the IDs.
     `include_unused`: option to include Techniques that are not used by any Group in interaction matrix.
     """
-    if include_unused == False:
+    if include_unused_techniques == False:
         technique_IDs_df = technique_IDs_df [technique_IDs_df[TECHNIQUE_ID_NAME].isin (positive_cases[TECHNIQUE_ID_NAME])]
     #else:
     group_technique_interactions = pd.merge (group_IDs_df, technique_IDs_df, how = 'cross')

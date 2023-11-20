@@ -46,8 +46,8 @@ def main():
     formatted_text = yaml.dump(config, default_flow_style=False, indent=2, sort_keys=False)
     print ('---Config for data preprocessing\n',formatted_text)
     include_unused_techniques = config['include_unused_techniques']
-    limit_technique_based_on_earliest_tactic_stage = config['limit_technique_based_on_earliest_tactic_stage']
-    limit_group_instances = config['limit_group_instances']
+    # limit_technique_based_on_earliest_tactic_stage = config['limit_technique_based_on_earliest_tactic_stage']
+    # limit_group_instances = config['limit_group_instances']
     
     #### CLEANING DATA / SELECTING FEATURES
     
@@ -55,15 +55,15 @@ def main():
     collect_data ()
     technique_features, group_features, interaction_matrix = clean_data(
         include_unused_techniques = include_unused_techniques, 
-        tactics_order_df= tactics_order_df,
-        limit_technique_based_on_earliest_tactic_stage= limit_technique_based_on_earliest_tactic_stage,
-        limit_group_instances=limit_group_instances,
+        # tactics_order_df= tactics_order_df,
+        # limit_technique_based_on_earliest_tactic_stage= limit_technique_based_on_earliest_tactic_stage,
+        # limit_group_instances=limit_group_instances,
         save_as_csv = save_intermediary_table)
 
-    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-    embed_model = TFBertModel.from_pretrained('bert-base-uncased')
-    group_features = build_feature_sentence_embed (group_features, 'input_group_description', tokenizer, embed_model)
-    technique_features = build_feature_sentence_embed (technique_features, 'input_technique_description', tokenizer, embed_model)
+    # tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    # embed_model = TFBertModel.from_pretrained('bert-base-uncased')
+    # group_features = build_feature_sentence_embed (group_features, 'input_group_description', tokenizer, embed_model)
+    # technique_features = build_feature_sentence_embed (technique_features, 'input_technique_description', tokenizer, embed_model)
     
     # #### LAST STEPS (save the output tables as pkl)
     
