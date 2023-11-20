@@ -50,6 +50,7 @@ def reduce_vals_based_on_percentage (df: pd.DataFrame(), feature_name: str, perc
     selected_vals = []
     cumulative_count = 0
     for value, count in value_counts.items():
+        if value == "": continue
         if cumulative_count + count <= threshold:
             selected_vals.append(value)
             cumulative_count += count

@@ -49,21 +49,16 @@ def main():
     # limit_technique_based_on_earliest_tactic_stage = config['limit_technique_based_on_earliest_tactic_stage']
     # limit_group_instances = config['limit_group_instances']
     
-    #### CLEANING DATA / SELECTING FEATURES
-    
-    tactics_order_df = pd.read_csv ('../data/raw/tactics_order.csv', index_col=0)
+    #### CLEANING DATA / SELECTING FEATURES    
     collect_data ()
     technique_features, group_features, interaction_matrix = clean_data(
         include_unused_techniques = include_unused_techniques, 
-        # tactics_order_df= tactics_order_df,
-        # limit_technique_based_on_earliest_tactic_stage= limit_technique_based_on_earliest_tactic_stage,
-        # limit_group_instances=limit_group_instances,
         save_as_csv = save_intermediary_table)
 
-    # tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-    # embed_model = TFBertModel.from_pretrained('bert-base-uncased')
-    # group_features = build_feature_sentence_embed (group_features, 'input_group_description', tokenizer, embed_model)
-    # technique_features = build_feature_sentence_embed (technique_features, 'input_technique_description', tokenizer, embed_model)
+    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    embed_model = TFBertModel.from_pretrained('bert-base-uncased')
+    group_features = build_feature_sentence_embed (group_features, 'input_group_description', tokenizer, embed_model)
+    technique_features = build_feature_sentence_embed (technique_features, 'input_technique_description', tokenizer, embed_model)
     
     # #### LAST STEPS (save the output tables as pkl)
     
