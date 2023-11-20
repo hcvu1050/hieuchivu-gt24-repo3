@@ -183,7 +183,9 @@ def build_dataset_2 (X_group_df: pd.DataFrame, X_technique_df:pd.DataFrame, y_df
     return res_dataset
     
 
-def build_dataset_3 (X_group_df: pd.DataFrame, X_technique_df:pd.DataFrame, y_df:pd.DataFrame):
+def build_dataset_3 (X_group_df: pd.DataFrame, X_technique_df:pd.DataFrame, y_df:pd.DataFrame,
+                     selected_ragged_group_features: list, selected_ragged_technique_features: list,
+                     ):
     """
     From the (aligned) feature tables and label table, build and return a tensorflow dataset.
     Difference from the previous version: each feature has its own key-value pair in the input dictionary
@@ -194,7 +196,8 @@ def build_dataset_3 (X_group_df: pd.DataFrame, X_technique_df:pd.DataFrame, y_df
     y_df = y_df[LABEL_NAME]
     
     input_dict = dict()
-    for feature_name in RAGGED_GROUP_FEATURES:
+    #### features for GROUPS
+    for feature_name in [name for name in RAGGED_GROUP_FEATURES if name in selected_ragged_group_features]:
         feature_tf = tf.ragged.constant (X_group_df[feature_name].values, dtype= tf.string)
         input_dict [feature_name] = feature_tf
     feature_tf = tf.constant (X_group_df[[INPUT_GROUP_INTERACTION_RATE]].values, dtype=tf.float32)
@@ -202,7 +205,8 @@ def build_dataset_3 (X_group_df: pd.DataFrame, X_technique_df:pd.DataFrame, y_df
     feature_tf = tf.convert_to_tensor (list(X_group_df[INPUT_GROUP_DESCRIPTION].values))
     input_dict [INPUT_GROUP_DESCRIPTION] = feature_tf
     
-    for feature_name in RAGGED_TECHNIQUE_FEATURES:
+    #### features for TECHNIQUES
+    for feature_name in [name for name in RAGGED_TECHNIQUE_FEATURES if name in selected_ragged_technique_features]:
         feature_tf = tf.ragged.constant (X_technique_df[feature_name].values, dtype= tf.string)
         input_dict [feature_name] = feature_tf
     feature_tf = tf.constant (X_technique_df[[INPUT_TECHNIQUE_INTERACTION_RATE]].values, dtype=tf.float32)

@@ -98,7 +98,7 @@ def main():
                                           ratio = cv_size/(cv_size + test_size))
     if save_intermediary_table:
         dfs = {
-            'train_y': train_y_df,
+        'train_y': train_y_df,
             'train_cv_y': train_cv_y_df,
             'cv_y': cv_y_df,
             'test_y': test_y_df
@@ -111,11 +111,16 @@ def main():
                                                          group_features_df= group_features_df,
                                                          group_feature_names=selected_group_features,
                                                          save_as_csv= save_intermediary_table)        
+    ### export for unit test
+    technique_features_df.to_pickle ('tmp_m1pp_technique_org.pkl')
+    group_features_df.to_pickle ('tmp_m1pp_group_org.pkl')
     
     #### 3b- Build addtional features features
     technique_features_df = build_feature_interaction_frequency (label_df= train_y_df, feature_df= technique_features_df, object_ID= 'technique_ID', feature_name = 'input_technique_interaction_rate')
     group_features_df = build_feature_interaction_frequency (label_df= train_y_df, feature_df= group_features_df, object_ID= 'group_ID', feature_name = 'input_group_interaction_rate')
+    #### ❗extra ragged feature, will be added to selected_group_features
     group_features_df = build_feature_used_tactics (label_df= train_y_df, group_df= group_features_df, technique_df= technique_features_df, feature_name= 'input_group_tactics')
+    selected_group_features = selected_group_features + ['input_group_tactics']
     
     #### 👉3c- limit feature cardinality
     if limit_cardinality is not None: 
@@ -129,26 +134,15 @@ def main():
                 technique_features_df = batch_reduce_vals_based_on_percentage (technique_features_df, setting = limit_technique_features)
             if limit_group_features is not None:
                 group_features_df = batch_reduce_vals_based_on_percentage (group_features_df, setting = limit_group_features)
-            
+    
+    ### export for unit test
+    technique_features_df.to_pickle ('tmp_m1pp_technique.pkl')
+    group_features_df.to_pickle ('tmp_m1pp_group.pkl')
     
     #### 👉Make vocab
-    make_vocab(group_features_df, [
-                   'input_group_software_id',
-                   'input_group_tactics'
-               ])
-    make_vocab (technique_features_df, [
-        'input_technique_data_sources',
-        'input_technique_defenses_bypassed',
-        'input_technique_detection_name',
-        'input_technique_mitigation_id',
-        'input_technique_permissions_required',
-        'input_technique_platforms',
-        'input_technique_software_id',
-        'input_technique_tactics',
-        'input_technique_description',
-    ])
+    make_vocab(group_features_df, selected_group_features)
+    make_vocab (technique_features_df, selected_technique_features)
     #### - (OPTIONAL) OVERSAMPLING train and train_cv, if train_cv size is set to 0, return an empty dataframe
-
     if resampling is not None: 
         print ('--resampling data')
         
@@ -214,21 +208,29 @@ def main():
     print ('--building datasets')
     
     train_dataset = build_dataset_3(X_group_df =      train_X_group_df, 
-                                  X_technique_df =  train_X_technique_df,
-                                  y_df =            train_y_df)
+                                    X_technique_df =  train_X_technique_df,
+                                    selected_ragged_group_features= selected_group_features,
+                                    selected_ragged_technique_features = selected_technique_features,
+                                    y_df =            train_y_df)
     
     if train_cv_size != 0:
-        train_cv_dataset = build_dataset_3(X_group_df=    train_cv_X_group_df, 
-                                        X_technique_df= train_cv_X_technique_df,
-                                        y_df=           train_cv_y_df)
+        train_cv_dataset = build_dataset_3(X_group_df =    train_cv_X_group_df, 
+                                           X_technique_df = train_cv_X_technique_df,
+                                           selected_ragged_group_features = selected_group_features,
+                                           selected_ragged_technique_features = selected_technique_features,
+                                           y_df=           train_cv_y_df)
         
     cv_dataset = build_dataset_3(X_group_df =         cv_X_group_df, 
-                                  X_technique_df =  cv_X_technique_df,
-                                  y_df =            cv_y_df)
+                                 X_technique_df =  cv_X_technique_df,
+                                 selected_ragged_group_features= selected_group_features,
+                                 selected_ragged_technique_features = selected_technique_features,
+                                 y_df =            cv_y_df)
     
     test_dataset = build_dataset_3(X_group_df =       test_X_group_df, 
-                                  X_technique_df =  test_X_technique_df,
-                                  y_df =            test_y_df)
+                                   X_technique_df =  test_X_technique_df,
+                                   selected_ragged_group_features= selected_group_features,
+                                   selected_ragged_technique_features = selected_technique_features,
+                                   y_df =            test_y_df)
     
     
     save_dataset (train_dataset, TARGET_PATH, TRAIN_DATASET_FILENAME)
