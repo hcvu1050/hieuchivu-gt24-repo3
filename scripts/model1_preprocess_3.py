@@ -21,7 +21,7 @@ sys.path.append("..")
 
 from src.models.model1.model_preprocess import get_data, split_by_group, label_resample, align_input_to_labels, build_dataset_3, save_dataset
 from src.data.select_features import select_features
-from src.data.cleaning_4 import _limit_samples_based_on_earliest_stage
+from src.data.cleaning_4 import _limit_samples_based_on_earliest_stage, _limit_samples_based_on_group_interaction
 from src.data.limit_cardinality import batch_reduce_vals_based_on_nth_most_frequent
 from src.data.build_features_3 import build_feature_interaction_frequency, build_feature_used_tactics
 from src.data.make_vocab import make_vocab
@@ -62,6 +62,7 @@ def main():
     
     ## READING CONFIG
     limit_samples_based_on_earliest_stage = config ['limit_samples_based_on_earliest_stage']
+    limit_samples_based_on_group_interaction = config ['limit_samples_based_on_group_interaction']
     data_split = config['data_split']
     selected_group_features = config['selected_group_features']
     selected_technique_features = config['selected_technique_features']
@@ -79,6 +80,11 @@ def main():
             technique_tactics_df = technique_features_df[[TECHNIQUE_ID_NAME, INPUT_TECHNIQUE_TACTICS]],
             tactics_order_df= tactics_order,
             labels_df= labels_df
+        )
+    
+    if limit_samples_based_on_group_interaction is not None: 
+        labels_df = _limit_samples_based_on_group_interaction (
+            labels_df= labels_df, min_instances= limit_samples_based_on_group_interaction
         )
     
     #### 👉2- SPLIT LABELS
