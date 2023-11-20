@@ -203,7 +203,7 @@ def _make_interaction_matrix_2 (group_IDs_df,
         ### 👉 limit interaction based on earliest tactic stage: 
         # for a group, the interaction examples are limited to the earliest known tactic stage of the group
         # - get technique's earliest tactic stage
-        technique_tactics_df.to_csv ('tmp_t_tactics_df.csv')
+        # technique_tactics_df.to_csv ('tmp_t_tactics_df.csv')
         technique_earliest_stage = pd.merge (
             left = technique_tactics_df.explode ('input_technique_tactics'),
             right = tactics_order_df,
@@ -292,3 +292,41 @@ def _combine_features (IDs_df: pd.DataFrame(), feature_dfs: list):
         res_df = pd.merge (left = res_df, right= feature_df, on=id_name, how = 'left')
     return res_df
 
+def _limit_samples_based_on_earliest_stage (technique_tactics_df: pd.DataFrame(),
+                                           tactics_order_df: pd.DataFrame(),
+                                           labels_df: pd.DataFrame()):
+    technique_earliest_stage = pd.merge (
+        left = technique_tactics_df.explode (INPUT_TECHNIQUE_TACTICS),
+        right = tactics_order_df,
+        how = 'left', left_on= INPUT_TECHNIQUE_TACTICS, right_on= 'tactic_name'
+    )
+    ### get the earliest tactic stage associated with each technique
+    technique_earliest_stage = technique_earliest_stage.groupby (TECHNIQUE_ID_NAME, as_index= False).agg(min)
+    technique_earliest_stage.drop(columns = [INPUT_TECHNIQUE_TACTICS, 'tactic_name'], inplace= True)
+    technique_earliest_stage.rename (columns= {'stage_order': 'technique_earliest_stage'}, inplace= True)
+    ### get the earliest tactic stage associated with each group
+    group_earliest_stage = pd.merge (
+        left = labels_df[labels_df['label']==1], 
+        right = technique_earliest_stage,
+        on = 'technique_ID', how = 'left'
+    )
+    group_earliest_stage = group_earliest_stage[[GROUP_ID_NAME, 'technique_earliest_stage']].groupby (GROUP_ID_NAME, as_index= False).agg(min)
+    group_earliest_stage.rename (columns= {'technique_earliest_stage': 'group_earliest_stage'}, inplace= True)
+    group_earliest_stage
+    
+    # merge the earliest tactic stages of groups and technique to the interaction table
+    labels_df = pd.merge (
+        left = labels_df,
+        right = technique_earliest_stage,
+        how = 'left', on = 'technique_ID'
+    )
+    
+    labels_df = pd.merge (
+        left = labels_df, 
+        right = group_earliest_stage, 
+        how = 'left', on = 'group_ID'
+    )
+    ### filter the group-technique interaction 
+    labels_df = labels_df [labels_df ['group_earliest_stage'] <= labels_df ['technique_earliest_stage']]
+    labels_df.drop(columns= ['group_earliest_stage', 'technique_earliest_stage', 'tactic_ID'], inplace= True)
+    return labels_df

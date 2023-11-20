@@ -1,3 +1,6 @@
+# Limit samples (optional)
+limit_samples_based_on_earliest_stage: True
+
 # Data splitting ratio for model1
 data_split: 
   - 0.7

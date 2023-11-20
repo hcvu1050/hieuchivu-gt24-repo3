@@ -21,10 +21,11 @@ sys.path.append("..")
 
 from src.models.model1.model_preprocess import get_data, split_by_group, label_resample, align_input_to_labels, build_dataset_3, save_dataset
 from src.data.select_features import select_features
+from src.data.cleaning_4 import _limit_samples_based_on_earliest_stage
 from src.data.limit_cardinality import batch_reduce_vals_based_on_nth_most_frequent
 from src.data.build_features_3 import build_feature_interaction_frequency, build_feature_used_tactics
 from src.data.make_vocab import make_vocab
-from src.constants import TRAIN_DATASET_FILENAME, TRAIN_CV_DATASET_FILENAME, CV_DATASET_FILENAME, TEST_DATASET_FILENAME
+from src.constants import *
 from src.data.utils import batch_save_df_to_csv
 
 ROOT_FOLDER = os.path.dirname(os.path.dirname(os.path.abspath('__file__')))
@@ -59,6 +60,8 @@ def main():
     formatted_text = yaml.dump(config, default_flow_style=False, indent=2, sort_keys=False)
     print ('---config for model 1 preprocessing:\n',formatted_text)
     
+    ## READING CONFIG
+    limit_samples_based_on_earliest_stage = config ['limit_samples_based_on_earliest_stage']
     data_split = config['data_split']
     selected_group_features = config['selected_group_features']
     selected_technique_features = config['selected_technique_features']
@@ -69,6 +72,14 @@ def main():
     
     #### 👉1- LOAD DATA
     group_features_df, technique_features_df, labels_df = get_data(data_type = 'pkl')
+    tactics_order = pd.read_csv ('../data/raw/tactics_order.csv', index_col=0)
+    #### 👉1b - (OPT) LIMIT SAMPLES
+    if limit_samples_based_on_earliest_stage:
+        labels_df = _limit_samples_based_on_earliest_stage (
+            technique_tactics_df = technique_features_df[[TECHNIQUE_ID_NAME, INPUT_TECHNIQUE_TACTICS]],
+            tactics_order_df= tactics_order,
+            labels_df= labels_df
+        )
     
     #### 👉2- SPLIT LABELS
     print ('--splitting data')
