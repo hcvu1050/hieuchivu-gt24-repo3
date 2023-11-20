@@ -10,7 +10,7 @@ TECHNIQUE_TABLE_PREFIX = 'X_technique'
 GROUP_TABLE_PREFIX = 'X_group'
 RESULT_FILE_POSTFIX = 'selected_features'
 
-def batch_reduce_vals_based_on_nth_most_frequent (df: pd.DataFrame, setting: dict):
+def batch_reduce_vals_based_on_nth_most_frequent (df: pd.DataFrame(), setting: dict):
     for col in setting.keys():
         df = reduce_vals_based_on_nth_most_frequent (df = df, feature_name=col, n = setting[col])
     return df
@@ -37,6 +37,11 @@ def reduce_vals_based_on_nth_most_frequent (df: pd.DataFrame(), feature_name: st
     res_df[feature_name] = res_df[feature_name].apply(_filter_seltected_vals)
     return res_df
 
+def batch_reduce_vals_based_on_percentage (df: pd.DataFrame(), setting: dict):
+    for col in setting.keys():
+        df = reduce_vals_based_on_percentage (df = df, feature_name= col, percentage= setting[col])
+    return df
+
 def reduce_vals_based_on_percentage (df: pd.DataFrame(), feature_name: str, percentage: float):
     all_vals = df[feature_name].explode()
     value_counts = all_vals.value_counts().sort_values(ascending=False)
@@ -50,7 +55,6 @@ def reduce_vals_based_on_percentage (df: pd.DataFrame(), feature_name: str, perc
             cumulative_count += count
         else:
             break
-    
     def _filter_seltected_vals (lst):
         return [item for item in lst if item in selected_vals]
     res_df = df.copy()
