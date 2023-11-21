@@ -27,16 +27,16 @@ limit_cardinality: "percentage"
 # limit_cardinality: "n_most_frequent"
 
 limit_group_features: 
-  input_group_software_id: 1.0
+  input_group_software_id: 0.7
   # input_group_tactics: 
 limit_technique_features: 
-  input_technique_data_sources: 1.0
+  input_technique_data_sources: 0.7
   # input_technique_defenses_bypassed: ~
-  input_technique_detection_name: 1.0
-  input_technique_mitigation_id: 1.0
+  input_technique_detection_name: 0.7
+  input_technique_mitigation_id: 0.7
   # input_technique_permissions_required: 2
   # input_technique_platforms: ~
-  input_technique_software_id: 1.0
+  input_technique_software_id: 0.7
   # input_technique_tactics: ~
 
 resampling: 

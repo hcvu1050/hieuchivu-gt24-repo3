@@ -21,7 +21,7 @@ REPORT_FOLDER = os.path.join (ROOT_FOLDER, 'reports', 'model1')
 TRAINED_MODELS_FOLDER = os.path.join (ROOT_FOLDER, 'trained_models', 'model1')
 
 from src.models.model1.dataloader import load_datasets
-from src.models.model1.model_v0_6 import Model1
+from src.models.model1.model_v0_6b import Model1
 
 from src.models.model1.model_preprocess import  align_input_to_labels, build_dataset_2
 def main():
@@ -73,10 +73,10 @@ def main():
     group_software_id_vocab = pd.read_csv('../data/interim/input_group_software_id_vocab.csv', header = None)
     technique_tactics_vocab = pd.read_csv('../data/interim/input_technique_tactics_vocab.csv', header= None)
     technique_data_sources_vocab = pd.read_csv('../data/interim/input_technique_data_sources_vocab.csv', header= None)
-    technique_defenses_bypassed_vocab = pd.read_csv('../data/interim/input_technique_defenses_bypassed_vocab.csv', header= None)
+    # technique_defenses_bypassed_vocab = pd.read_csv('../data/interim/input_technique_defenses_bypassed_vocab.csv', header= None)
     technique_detection_name_vocab = pd.read_csv('../data/interim/input_technique_detection_name_vocab.csv', header= None)
     technique_mitigation_id_vocab = pd.read_csv('../data/interim/input_technique_mitigation_id_vocab.csv', header= None)
-    technique_permissions_required_vocab = pd.read_csv('../data/interim/input_technique_permissions_required_vocab.csv', header= None)
+    # technique_permissions_required_vocab = pd.read_csv('../data/interim/input_technique_permissions_required_vocab.csv', header= None)
     technique_platforms_vocab = pd.read_csv('../data/interim/input_technique_platforms_vocab.csv', header= None)
     technique_software_id_vocab = pd.read_csv('../data/interim/input_technique_software_id_vocab.csv', header= None)
     
@@ -84,10 +84,10 @@ def main():
     'input_software_id' : pd.concat ([group_software_id_vocab, technique_software_id_vocab])[0].dropna().unique(),
     'input_tactics' : technique_tactics_vocab[0].dropna().values,   
     'input_technique_data_sources' : technique_data_sources_vocab[0].dropna().values,
-    'input_technique_defenses_bypassed' : technique_defenses_bypassed_vocab[0].dropna().values,
+    # 'input_technique_defenses_bypassed' : technique_defenses_bypassed_vocab[0].dropna().values,
     'input_technique_detection_name' : technique_detection_name_vocab[0].dropna().values,
     'input_technique_mitigation_id' : technique_mitigation_id_vocab[0].dropna().values,
-    'input_technique_permissions_required' : technique_permissions_required_vocab[0].dropna().values,
+    # 'input_technique_permissions_required' : technique_permissions_required_vocab[0].dropna().values,
     'input_technique_platforms' : technique_platforms_vocab[0].dropna().values,
     'input_technique_software_id' : technique_software_id_vocab[0].dropna().values,
     }
@@ -107,7 +107,7 @@ def main():
     # # ❗
     # loss = keras.losses.BinaryCrossentropy (from_logits= True)
     loss = keras.losses.BinaryFocalCrossentropy (from_logits= True, 
-                                                 apply_class_balancing= True,
+                                                 apply_class_balancing= False,
                                                  alpha = 0.15, 
                                                  gamma = 2.5 )
     model.compile (optimizer, 
