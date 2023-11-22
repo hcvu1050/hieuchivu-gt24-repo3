@@ -98,7 +98,7 @@ def main():
     train_dataset = train_dataset.shuffle(buffer_size=len(train_dataset))
     train_dataset = train_dataset.prefetch(buffer_size=tf.data.AUTOTUNE)
 
-    cv_dataset = cv_dataset.batch(32)
+    cv_dataset = cv_dataset.batch(batch_size)
     
     #### 👉 LOAD/COMPILE MODEL THEN TRAIN MODEL
     model = Model1 (config=model_architecture_config, vocabs=vocabs)    

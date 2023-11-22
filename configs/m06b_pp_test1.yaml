@@ -13,10 +13,10 @@ selected_group_features:
   - 'input_group_description'
 selected_technique_features:
   - 'input_technique_data_sources'
-  - 'input_technique_defenses_bypassed'
+  # - 'input_technique_defenses_bypassed'
   - 'input_technique_detection_name'
   - 'input_technique_mitigation_id'
-  - 'input_technique_permissions_required'
+  # - 'input_technique_permissions_required'
   - 'input_technique_platforms'
   - 'input_technique_software_id'
   - 'input_technique_tactics'
@@ -41,4 +41,4 @@ limit_technique_features:
 
 resampling: 
   oversample: ~
-  undersample: 0.2
+  undersample: 0.3
