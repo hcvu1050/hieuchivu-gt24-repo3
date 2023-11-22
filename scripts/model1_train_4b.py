@@ -21,7 +21,7 @@ REPORT_FOLDER = os.path.join (ROOT_FOLDER, 'reports', 'model1')
 TRAINED_MODELS_FOLDER = os.path.join (ROOT_FOLDER, 'trained_models', 'model1')
 
 from src.models.model1.dataloader import load_datasets
-from src.models.model1.model_v0_6b import Model1
+from src.models.model1.model_v0_6c import Model1
 
 from src.models.model1.model_preprocess import  align_input_to_labels, build_dataset_2
 def main():
