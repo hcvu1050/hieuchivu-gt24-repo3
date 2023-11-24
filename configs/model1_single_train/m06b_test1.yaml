@@ -34,13 +34,13 @@ model_architecture:
   regularizer: ~
   regularizer_weight: ~
   initializer: he
-  dropout_rate: 0.3
-  masking: False
+  dropout_rate: 0.4
+  masking: True
 
 train:
-  epochs: 100
-  learning_rate:  3e-6
-  batch_size: 16
+  epochs: 200
+  learning_rate:  1e-5
+  batch_size: 32
   class_weights: 
     0: 1.0
     1: 1.0

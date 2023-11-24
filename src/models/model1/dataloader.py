@@ -82,3 +82,30 @@ def load_datasets (empty_train_cv: bool = False, sample_train: float = None,  re
         if not empty_train_cv:
             return train_dataset, train_cv_dataset, cv_dataset, test_dataset
         return train_dataset, cv_dataset, test_dataset
+
+def load_datasets_2 (empty_train_cv: bool = False,  return_feature_info = True):
+    """
+    Returns train and cv datasets for training.
+    """
+    train_dataset = _single_load (TRAIN_DATASET_FILENAME)
+    if not empty_train_cv: 
+        train_cv_dataset = _single_load (TRAIN_CV_DATASET_FILENAME)
+    cv_dataset = _single_load (CV_DATASET_FILENAME)
+    
+    print ('train_dataset: {} examples'.format(len(train_dataset)))
+    if not empty_train_cv:
+        print ('train_cv_dataset: {} examples'.format(len(train_cv_dataset)))
+    print ('cv_dataset: {} examples'.format(len(cv_dataset)))    
+    # return feature sizes to configure the model
+    if return_feature_info:
+        feature_info = {
+            'group_feature_size' : train_dataset.element_spec[0][INPUT_GROUP_LAYER_NAME].shape[0],
+            'technique_feature_size' : train_dataset.element_spec[0][INPUT_TECHNIQUE_LAYER_NAME].shape[0]
+        }
+        if not empty_train_cv:
+            return train_dataset, train_cv_dataset, cv_dataset, feature_info
+        return train_dataset, cv_dataset, feature_info
+    else: 
+        if not empty_train_cv:
+            return train_dataset, train_cv_dataset, cv_dataset
+        return train_dataset, cv_dataset

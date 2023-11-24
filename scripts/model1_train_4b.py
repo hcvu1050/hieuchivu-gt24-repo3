@@ -1,12 +1,10 @@
 """
 last update: 2023-10-29
-- Usage: Train a single instance of model1 (script version 4). Difference from version 3: 
-    - Dataset containin ragged tensors
-    - Model version 0.5
+- Usage: Train a single instance of model1 (script version 4b). Difference from version 3: 
+    - Model version 0.6.c
 - Args: 
     - `-config`:  name of the `yaml` file in `configs/model1/single_train` that will be used to define the hyperparameters for model1
 """
-
 import sys, os, argparse, yaml, time
 import pandas as pd
 import tensorflow as tf
@@ -20,10 +18,9 @@ SINGLE_TRAIN_FOLDER_NAME = 'model1_single_train'
 REPORT_FOLDER = os.path.join (ROOT_FOLDER, 'reports', 'model1')
 TRAINED_MODELS_FOLDER = os.path.join (ROOT_FOLDER, 'trained_models', 'model1')
 
-from src.models.model1.dataloader import load_datasets
+from src.models.model1.dataloader import load_datasets_2
 from src.models.model1.model_v0_6c import Model1
 
-from src.models.model1.model_preprocess import  align_input_to_labels, build_dataset_2
 def main():
     #### PARSING ARGS
     parser = argparse.ArgumentParser (description= 'command-line arguments when running {}'.format ('__file__'))
@@ -92,13 +89,14 @@ def main():
     'input_technique_software_id' : technique_software_id_vocab[0].dropna().values,
     }
     #### 👉LOAD DATASETS, THEN CONFIG DATASETS
-    train_dataset, cv_dataset, test_dataset  = load_datasets(empty_train_cv= True, return_feature_info=False)
+    train_dataset, cv_dataset = load_datasets_2(empty_train_cv= True, return_feature_info=False)
     
     train_dataset = train_dataset.batch(batch_size)
     train_dataset = train_dataset.shuffle(buffer_size=len(train_dataset))
     train_dataset = train_dataset.prefetch(buffer_size=tf.data.AUTOTUNE)
 
     cv_dataset = cv_dataset.batch(batch_size)
+    cv_dataset = cv_dataset.shuffle (buffer_size=len(cv_dataset))
     
     #### 👉 LOAD/COMPILE MODEL THEN TRAIN MODEL
     model = Model1 (config=model_architecture_config, vocabs=vocabs)    
