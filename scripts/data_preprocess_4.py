@@ -1,15 +1,14 @@
 """
-- `data_preprocess_tmp_2`
+- `data_preprocess_4`
 	- Config(s): `data_pp5` 
 		- include unused techniques
 	1. Collect the data
-	2. Clean the data with all candidate feature
+	2. Clean the data with all candidate features
 	3. Embed description sentences in Group and Technique feature
 	4. Exports: (1)Group features, (2)Technique features, (3)Interaction matrix
 """
 
 import sys, os, argparse, yaml
-import pandas as pd
 from transformers import BertTokenizer, TFBertModel
 sys.path.append("..")
 ### MODULES
@@ -37,7 +36,7 @@ def main():
     #### SETTING: option to save tables in intermediary steps
     save_intermediary_table = not last_only
     
-    #### SETTING: load config file config_file_name
+    #### SETTING: load config file 
     if not config_file_name.endswith ('.yaml'): config_file_name += '.yaml'
     config_file_path = os.path.join (CONFIG_FOLDER, config_file_name)
     with open (config_file_path, 'r') as config_file:
@@ -46,8 +45,6 @@ def main():
     formatted_text = yaml.dump(config, default_flow_style=False, indent=2, sort_keys=False)
     print ('---Config for data preprocessing\n',formatted_text)
     include_unused_techniques = config['include_unused_techniques']
-    # limit_technique_based_on_earliest_tactic_stage = config['limit_technique_based_on_earliest_tactic_stage']
-    # limit_group_instances = config['limit_group_instances']
     
     #### CLEANING DATA / SELECTING FEATURES    
     collect_data ()

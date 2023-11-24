@@ -78,7 +78,7 @@ def collect_data(target_path = TARGET_PATH):
         5.`techniques_detections_df`\n
         6.`techniques_software_df`\n
         7.`labels_df`\n
-        8. `tactics_df`\n
+        8.`tactics_df`\n
     """
     print (PROCESS_RUNNING_MSG)
     groups_df, groups_software_df, techniques_df, techniques_mitigations_df, techniques_detections_df, techniques_software_df, labels_df, tactics_df = read_data_local()

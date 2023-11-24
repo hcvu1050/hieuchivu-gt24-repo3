@@ -25,10 +25,7 @@ PROCESS_RUNNING_MSG = "--runing {}".format(__name__)
 ### END OF CONFIGURATION ###
 
 ### 👉 MAIN FUNCTION
-def clean_data(include_unused_techniques: bool = False, 
-               tactics_order_df = None,
-                limit_technique_based_on_earliest_tactic_stage: bool = None,
-                limit_group_instances: int = None,
+def clean_data(include_unused_techniques: bool = False,
                 target_path = TARGET_PATH , save_as_csv = True):
     """Filters the columns needed for training, then combines all features of a object group into one table.\n
     Returns 3 tables:\n
