@@ -130,16 +130,16 @@ def main():
             if limit_group_features is not None:
                 group_features_df = batch_reduce_vals_based_on_percentage (group_features_df, setting = limit_group_features)
     
-    ### export for unit test
-    technique_features_df.to_pickle ('tmp_m1pp_technique.pkl')
-    group_features_df.to_pickle ('tmp_m1pp_group.pkl')
-    
     #### 👉 3c- Build addtional features 
     technique_features_df = build_feature_interaction_frequency (label_df= train_y_df, feature_df= technique_features_df, object_ID= 'technique_ID', feature_name = 'input_technique_interaction_rate')
     group_features_df = build_feature_interaction_frequency (label_df= train_y_df, feature_df= group_features_df, object_ID= 'group_ID', feature_name = 'input_group_interaction_rate')
     #### ❗extra ragged feature, will be added to selected_group_features
     group_features_df = build_feature_used_tactics (label_df= train_y_df, group_df= group_features_df, technique_df= technique_features_df, feature_name= 'input_group_tactics')
     selected_group_features = selected_group_features + ['input_group_tactics']
+    
+    ### export for unit test
+    technique_features_df.to_pickle ('tmp_m1pp_technique.pkl')
+    group_features_df.to_pickle ('tmp_m1pp_group.pkl')
     
     #### 👉Make vocab
     make_vocab(group_features_df, selected_group_features)
