@@ -1,16 +1,16 @@
 """
 - Model1 preprocessing steps (srcript version 3)
-- Usage: data preprocess pipeline specific to model 1. ❗Only works after running `data_preprocess_tmp_2`. Steps: 
-    1. Load the data exported by running `data_preprocess_tmp`, including (1)Group feature, (2)Technique feature, and (3)Interaction matrix
-    2. Split the data into train , cv, and test set with ratios defined by a yaml file in `configs/folder`
+- Usage: data preprocess pipeline specific to model 1. ❗Only works after running `data_preprocess_4`. Steps: 
+    1. Load the data exported by running `data_preprocess_4`, including (1)Group feature, (2)Technique feature, and (3)Interaction matrix
+    2. Split the data into train and cv set with ratios defined by a yaml file in `configs/folder`
     3. Select features for Group and Technique.
-    3b. Engineer some additional features for Group and Technique
-    3c. (Opt) Limit feature cardinality
-    4. Make vocab for the features
-    4. (Opt) Re-sampling train and train-cv data
-    5. Aligning features to labels
-    6. Create tensorflow Datasets for train and train-cv sets.
-    7. Save the preprocessed data to `data/preprocessed/model1`
+        1. Engineer some additional features for Group and Technique
+        2. (opt) Limit feature cardinality
+    4. Make vocab for the string-valued features (to be used later in downstream tasks)
+    5. (opt) Re-sampling train and train-cv data
+    6. Align features to labels
+    7. Create TensorFlow Datasets for train and train-cv sets.
+    8. Save the preprocessed data to `data/preprocessed/model1`
 - Args: 
     - `config`: name of the `yaml` file in `configs/` that will be used to define the ratios for splitting the data sets.
     - `-lo`  (means 'last only', defaul = `True`): optional argument to save the intermediary data while going through the preprocessing steps.
@@ -117,7 +117,7 @@ def main():
     technique_features_df.to_pickle ('tmp_m1pp_technique_org.pkl')
     group_features_df.to_pickle ('tmp_m1pp_group_org.pkl')
     
-    #### 👉3c- limit feature cardinality
+    #### 👉3b- limit feature cardinality
     if limit_cardinality is not None: 
         if limit_cardinality == 'n_most_frequent':
             if limit_technique_features is not None:
@@ -134,7 +134,7 @@ def main():
     technique_features_df.to_pickle ('tmp_m1pp_technique.pkl')
     group_features_df.to_pickle ('tmp_m1pp_group.pkl')
     
-    #### 3b- Build addtional features 
+    #### 👉 3c- Build addtional features 
     technique_features_df = build_feature_interaction_frequency (label_df= train_y_df, feature_df= technique_features_df, object_ID= 'technique_ID', feature_name = 'input_technique_interaction_rate')
     group_features_df = build_feature_interaction_frequency (label_df= train_y_df, feature_df= group_features_df, object_ID= 'group_ID', feature_name = 'input_group_interaction_rate')
     #### ❗extra ragged feature, will be added to selected_group_features
@@ -144,7 +144,6 @@ def main():
     #### 👉Make vocab
     make_vocab(group_features_df, selected_group_features)
     make_vocab (technique_features_df, selected_technique_features)
-    
     
     #### - (OPTIONAL) OVERSAMPLING train and train_cv, if train_cv size is set to 0, return an empty dataframe
     if resampling is not None: 
@@ -187,26 +186,15 @@ def main():
                                                object= 'technique', 
                                                label_df= cv_y_df)
     # test set
-    test_X_group_df = align_input_to_labels (group_features_df, 
-                                             object= 'group', 
-                                             label_df= test_y_df)
-    test_X_technique_df = align_input_to_labels (technique_features_df, 
-                                               object= 'technique', 
-                                               label_df= test_y_df)
-    
-    # if save_intermediary_table:
-    #     dfs = {
-    #     'train_X_group':        train_X_group_df,
-    #     'train_X_technique':    train_X_technique_df,
-    #     'train_cv_X_group':     train_cv_X_group_df,
-    #     'train_cv_X_technique': train_cv_X_technique_df,
-    #     'cv_X_group':           cv_X_group_df,
-    #     'cv_X_technique':       cv_X_technique_df,
-    #     'test_X_group':         test_X_group_df,
-    #     'test_X_technique':     test_X_technique_df,
-    #     }
-    #     batch_save_df_to_csv (dfs, TARGET_PATH, postfix= 'aligned')
-        
+    if test_size != 0:
+        test_X_group_df = align_input_to_labels (group_features_df, 
+                                                object= 'group', 
+                                                label_df= test_y_df)
+        test_X_technique_df = align_input_to_labels (technique_features_df, 
+                                                object= 'technique', 
+                                                label_df= test_y_df)
+
+
     #### 5- Make tensor flow datasets
     ### ❗different from model1_preprocess: build_dataset_3
     print ('--building datasets')
@@ -229,18 +217,19 @@ def main():
                                  selected_ragged_group_features= selected_group_features,
                                  selected_ragged_technique_features = selected_technique_features,
                                  y_df =            cv_y_df)
-    
-    test_dataset = build_dataset_3(X_group_df =       test_X_group_df, 
-                                   X_technique_df =  test_X_technique_df,
-                                   selected_ragged_group_features= selected_group_features,
-                                   selected_ragged_technique_features = selected_technique_features,
-                                   y_df =            test_y_df)
+    if test_size != 0:
+        test_dataset = build_dataset_3(X_group_df =       test_X_group_df, 
+                                    X_technique_df =  test_X_technique_df,
+                                    selected_ragged_group_features= selected_group_features,
+                                    selected_ragged_technique_features = selected_technique_features,
+                                    y_df =            test_y_df)
     
     
     save_dataset (train_dataset, TARGET_PATH, TRAIN_DATASET_FILENAME)
     if train_cv_size !=0:
         save_dataset (train_cv_dataset, TARGET_PATH, TRAIN_CV_DATASET_FILENAME)
     save_dataset (cv_dataset, TARGET_PATH, CV_DATASET_FILENAME)
-    save_dataset (test_dataset, TARGET_PATH, TEST_DATASET_FILENAME)
+    if test_size != 0: 
+        save_dataset (test_dataset, TARGET_PATH, TEST_DATASET_FILENAME)
 if __name__ == '__main__':
     main()

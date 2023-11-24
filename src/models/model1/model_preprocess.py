@@ -59,6 +59,8 @@ def split_by_group(df: pd.DataFrame, ratio: float):
     group_IDs = df[GROUP_ID_NAME].unique()
     if ratio == 0:
         return pd.DataFrame(), df
+    if ratio ==1.0: 
+        return df, pd.DataFrame()
     group_1_IDs, group_2_IDs = train_test_split (group_IDs, 
                                          train_size = ratio, 
                                          random_state= RANDOM_STATE, 
