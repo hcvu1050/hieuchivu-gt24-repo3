@@ -2,9 +2,7 @@
 limit the cardinality of features
 """
 
-import os
 import pandas as pd
-from . import utils
 from ..constants import *
 TECHNIQUE_TABLE_PREFIX = 'X_technique'
 GROUP_TABLE_PREFIX = 'X_group'
@@ -39,7 +37,7 @@ def batch_reduce_vals_based_on_percentage (df: pd.DataFrame(), setting: dict):
         df = reduce_vals_based_on_percentage (df = df, feature_name= col, percentage= setting[col])
     return df
 
-def reduce_vals_based_on_percentage (df: pd.DataFrame(), feature_name: str, percentage: float):
+def reduce_vals_based_on_percentage (df: pd.DataFrame(), feature_name: str, percentage: float, include_others:bool = True):
     all_vals = df[feature_name].explode()
     value_counts = all_vals.value_counts().sort_values(ascending=False)
     threshold = len(all_vals) * percentage
@@ -55,7 +53,10 @@ def reduce_vals_based_on_percentage (df: pd.DataFrame(), feature_name: str, perc
         else:
             break
     def _filter_seltected_vals (lst):
-        return [item for item in lst if item in selected_vals]
+        res = [item for item in lst if item in selected_vals]
+        if include_others and len(lst) > len(res): 
+            res.append ('other')
+        return res
     res_df = df.copy()
     res_df[feature_name] = res_df[feature_name].apply(_filter_seltected_vals)
     return res_df

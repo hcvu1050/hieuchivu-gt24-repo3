@@ -142,8 +142,8 @@ def main():
     group_features_df.to_pickle ('tmp_m1pp_group.pkl')
     
     #### 👉Make vocab
-    make_vocab(group_features_df, selected_group_features)
-    make_vocab (technique_features_df, selected_technique_features)
+    make_vocab(group_features_df, [feature for feature in selected_group_features if feature not in ['input_group_description']], path = TARGET_PATH)
+    make_vocab (technique_features_df, [feature for feature in selected_technique_features if feature not in ['input_technique_description']], path = TARGET_PATH)
     
     #### - (OPTIONAL) OVERSAMPLING train and train_cv, if train_cv size is set to 0, return an empty dataframe
     if resampling is not None: 
