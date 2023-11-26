@@ -144,11 +144,11 @@ class customNN_2(keras.Sequential):
             for layer in self.layers: 
                 layer.kernel_initializer = initializer
 class Model1(keras.Model):
-    def __init__(self, input_sizes=None, name = None,
+    def __init__(self, name = None,
                  group_nn_hidden_layer_widths = None, group_nn_hidden_layer_depth = None, 
                  technique_nn_hidden_layer_widths = None, technique_nn_hidden_layer_depth = None,
                  nn_output_size = None, config = None,
-                 initializer = None, dropout_rate = None, masking = None,
+                 initializer = None, embeddings_initializer = "uniform" , dropout_rate = None, masking = None,
                  regularizer = None, regularizer_weight = None,
                  vocabs = None, limit_technique_features = None, limit_group_features = None,
                  *args, **kwargs):
@@ -165,20 +165,14 @@ class Model1(keras.Model):
             regularizer_weight = config['regularizer_weight']
             if regularizer_weight != None: regularizer_weight = float (regularizer_weight)
             initializer = config['initializer']
+            if config ['embeddings_initializer'] != None: embeddings_initializer = config['embeddings_initializer']
             dropout_rate = config['dropout_rate']
             if dropout_rate != None: dropout_rate = float (dropout_rate)
             masking = config['masking']
             
             limit_technique_features = config['limit_technique_features']
             limit_group_features = config['limit_group_features']
-            
-        # group_input_size = input_sizes['group_feature_size']
-        # technique_input_size = input_sizes['technique_feature_size']
-        
-        # self.input_Group = keras.layers.Input (shape= (group_input_size,), name = 'input_Group')
-        # self.input_Technique = keras.layers.Input (shape= (technique_input_size,), name = 'input_Teckerashnique')
-        
-        #  each feature has its own vectorization-embedding layer
+
         ## 👉 input layers
         ### Group Inputs
         self.input_group_software_id =              tf.keras.layers.InputLayer(input_shape=(None,), ragged=True, dtype= tf.string, name = 'input_group_software_id')
@@ -214,16 +208,13 @@ class Model1(keras.Model):
         
         ## 👉 embed layers
         ### group and technique input shares two embedding layers: software and tactics
-        self.embed_software_id =              tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_software_id']), input_length= limit_group_features['input_software_id'],    output_dim=30, mask_zero= True, name = 'embed_software_id')
-        self.embed_tactics =                tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_tactics']),       input_length= limit_technique_features['input_tactics'],    output_dim=5, mask_zero= True, name = 'embed_tactics')
-        # self.embed_software_id =          tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_technique_software_id']),         input_length= limit_technique_features['input_technique_software_id'],          output_dim=20, mask_zero= True, name = 'embed_technique_software_id')
+        self.embed_software_id =              tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_software_id']), input_length= limit_group_features['input_software_id'],    output_dim=30, mask_zero= True, name = 'embed_software_id', embeddings_initializer= embeddings_initializer)
+        self.embed_tactics =                tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_tactics']),       input_length= limit_technique_features['input_tactics'],    output_dim=5, mask_zero= True, name = 'embed_tactics', embeddings_initializer= embeddings_initializer)
         
-        self.embed_technique_data_sources =         tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_technique_data_sources']),        input_length= limit_technique_features['input_technique_data_sources'],         output_dim=10, mask_zero= True, name = 'embed_technique_data_sources')
-        # self.embed_technique_defenses_bypassed =    tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_technique_defenses_bypassed']),   input_length= limit_technique_features['input_technique_defenses_bypassed'],    output_dim=5, mask_zero= True, name = 'embed_technique_defenses_bypassed')
-        self.embed_technique_detection_name =       tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_technique_detection_name']),      input_length= limit_technique_features['input_technique_detection_name'],       output_dim=10, mask_zero= True, name = 'embed_technique_detection_name')
-        self.embed_technique_mitigation_id =        tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_technique_mitigation_id']),       input_length= limit_technique_features['input_technique_mitigation_id'],        output_dim=10, mask_zero= True, name = 'embed_technique_mitigation_id')
-        # self.embed_technique_permissions_required = tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_technique_permissions_required']),input_length= limit_technique_features['input_technique_permissions_required'], output_dim=5, mask_zero= True, name = 'embed_technique_permissions_required')
-        self.embed_technique_platforms =            tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_technique_platforms']),           input_length= limit_technique_features['input_technique_platforms'],            output_dim=5, mask_zero= True, name = 'embed_technique_platforms')
+        self.embed_technique_data_sources =         tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_technique_data_sources']),        input_length= limit_technique_features['input_technique_data_sources'],         output_dim=10, mask_zero= True, name = 'embed_technique_data_sources', embeddings_initializer= embeddings_initializer)
+        self.embed_technique_detection_name =       tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_technique_detection_name']),      input_length= limit_technique_features['input_technique_detection_name'],       output_dim=10, mask_zero= True, name = 'embed_technique_detection_name', embeddings_initializer= embeddings_initializer)
+        self.embed_technique_mitigation_id =        tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_technique_mitigation_id']),       input_length= limit_technique_features['input_technique_mitigation_id'],        output_dim=10, mask_zero= True, name = 'embed_technique_mitigation_id', embeddings_initializer= embeddings_initializer)
+        self.embed_technique_platforms =            tf.keras.layers.Embedding (input_dim = 2 + len(vocabs ['input_technique_platforms']),           input_length= limit_technique_features['input_technique_platforms'],            output_dim=5, mask_zero= True, name = 'embed_technique_platforms', embeddings_initializer= embeddings_initializer)
         
         ## 👉 concatenate layer
         self.concatenate = tf.keras.layers.Concatenate (axis=1)

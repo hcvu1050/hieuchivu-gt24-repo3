@@ -1,6 +1,6 @@
 """
 last update: 2023-10-29
-- Usage: Train a single instance of model1 (script version 4b). Difference from version 3: 
+- Usage: Train a single instance of model1 (script version 5).
     - Model version 0.6.c
 - Args: 
     - `-config`:  name of the `yaml` file in `configs/model1/single_train` that will be used to define the hyperparameters for model1
