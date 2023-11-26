@@ -26,7 +26,7 @@ from src.data.limit_cardinality import batch_reduce_vals_based_on_nth_most_frequ
 from src.data.build_features_3 import build_feature_interaction_frequency, build_feature_used_tactics
 from src.data.make_vocab import make_vocab
 from src.constants import *
-from src.data.utils import batch_save_df_to_csv
+from src.data.utils import batch_save_df_to_csv, batch_save_df_to_pkl
 
 ROOT_FOLDER = os.path.dirname(os.path.dirname(os.path.abspath('__file__')))
 CONFIG_FOLDER = os.path.join (ROOT_FOLDER, 'configs')
@@ -141,6 +141,13 @@ def main():
     technique_features_df.to_pickle ('tmp_m1pp_technique.pkl')
     group_features_df.to_pickle ('tmp_m1pp_group.pkl')
     
+    
+    ### export for recommendation phase
+    dfs = {
+        'technnique_features': technique_features_df,
+        'group_features': group_features_df
+    }
+    batch_save_df_to_pkl (dfs, TARGET_PATH, prefix = 'processed')
     #### 👉Make vocab
     make_vocab(group_features_df, [feature for feature in selected_group_features if feature not in ['input_group_description']], path = TARGET_PATH)
     make_vocab (technique_features_df, [feature for feature in selected_technique_features if feature not in ['input_technique_description']], path = TARGET_PATH)

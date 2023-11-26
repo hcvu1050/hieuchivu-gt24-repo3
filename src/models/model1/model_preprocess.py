@@ -219,6 +219,21 @@ def build_dataset_3 (X_group_df: pd.DataFrame, X_technique_df:pd.DataFrame, y_df
     y_tf = tf.convert_to_tensor(y_df.values, dtype = tf.float32)
     res_dataset = tf.data.Dataset.from_tensor_slices ((input_dict,y_tf))    
     return res_dataset
+
+def build_technique_dataset (X_technique_df: pd.DataFrame()):
+    X_technique_df = X_technique_df.drop (columns= TECHNIQUE_ID_NAME)
+    input_dict = dict()
+    for feature_name in [name for name in X_technique_df.columns if name in RAGGED_TECHNIQUE_FEATURES]:
+    # for feature_name in [name for name in X_technique_df.columns]:
+        feature_tf = tf.ragged.constant (X_technique_df[feature_name].values, dtype= tf.string)
+        input_dict [feature_name] = feature_tf
+    feature_tf = tf.constant (X_technique_df[[INPUT_TECHNIQUE_INTERACTION_RATE]].values, dtype=tf.float32)
+    input_dict [INPUT_TECHNIQUE_INTERACTION_RATE] = feature_tf
+    feature_tf = tf.convert_to_tensor (list(X_technique_df[INPUT_TECHNIQUE_DESCRIPTION].values))
+    input_dict [INPUT_TECHNIQUE_DESCRIPTION] = feature_tf
+    
+    res_dataset = tf.data.Dataset.from_tensor_slices (input_dict)
+    return res_dataset
     
 def save_dataset (dataset, target_folder, file_name):
     file_path = os.path.join (target_folder, file_name)

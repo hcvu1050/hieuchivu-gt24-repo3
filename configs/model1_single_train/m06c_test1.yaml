@@ -36,11 +36,11 @@ model_architecture:
   initializer: he
   embeddings_initializer: he_uniform
   dropout_rate: 0.4
-  masking: True
+  masking: False
 
 train:
   epochs: 1
-  learning_rate:  1e-5
+  learning_rate:  5e-6
   batch_size: 32
   class_weights: 
     0: 1.0
