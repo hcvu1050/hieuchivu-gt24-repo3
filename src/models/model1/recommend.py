@@ -181,10 +181,19 @@ def get_technique_tatic_stage (technique_tactics_df: pd.DataFrame(),tactics_orde
 def get_interacted_tactic_range (interacted_techniques: list, look_up_table: pd.DataFrame()):
     """From a list of interacted techniques: Returns a tuple containing the earliest and latest tactic stage
     """
-    earliest_stage = 20
-    latest_stage  = 0
-    for technique in interacted_techniques: 
-        earliest_stage = min (earliest_stage, look_up_table.loc[look_up_table['technique_ID'] == technique, 'technique_earliest_stage'].iloc[0])
-        latest_stage = max (latest_stage, look_up_table.loc[look_up_table['technique_ID'] == technique, 'technique_latest_stage'].iloc[0])
+    filtered_table = look_up_table[look_up_table['technique_ID'].isin(interacted_techniques)]
+    earliest_stage = filtered_table['technique_earliest_stage'].min()
+    latest_stage = filtered_table['technique_earliest_stage'].max()
     
     return (earliest_stage, latest_stage)
+
+# def get_most_similar_techniques (interacted_techniques: list,  look_up_table: pd.DataFrame(), n: int):
+#     """From a list of interacted techniques: Returns a list of most similar techniques. \n
+#     Takes n most similar techniques for each interacted techniques.
+#     """
+#     similar_techniques = list
+    
+#     ### get the rows in dataframes that has interacted technique ids
+#     for technique in interacted_techniques:
+        
+    
