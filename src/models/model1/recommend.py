@@ -150,6 +150,9 @@ def make_look_up_table (learned_features: np.ndarray, id_list: list):
         return [id_list[i] for i in lst]
     look_up_table['sorted_similar_techniques'] = look_up_table['sorted_indices'].apply (_technique_index_id_map)
     look_up_table.drop (columns= ['sorted_indices'], inplace= True)
+    
+    ### filtering: remove the technique itself from the similar techniques
+    look_up_table['sorted_similar_techniques'] = look_up_table['sorted_similar_techniques'].apply(lambda x: x[1:])
     return look_up_table
 
 def get_technique_earliest_tatic_stage (technique_tactics_df: pd.DataFrame(),tactics_order_df: pd.DataFrame()):
