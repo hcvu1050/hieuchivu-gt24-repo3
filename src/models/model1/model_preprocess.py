@@ -15,9 +15,6 @@ from sklearn.model_selection import train_test_split
 from imblearn.over_sampling import RandomOverSampler
 from imblearn.under_sampling import RandomUnderSampler
 
-from ...constants import INPUT_GROUP_LAYER_NAME, INPUT_TECHNIQUE_LAYER_NAME
-from ...constants import GROUP_ID_NAME, TECHNIQUE_ID_NAME, LABEL_NAME
-from ...constants import RANDOM_STATE
 from ...constants import *
 ROOT_FOLDER = os.path.dirname(os.path.dirname(os.path.abspath('__file__')))
 SOURCE_PATH = os.path.join (ROOT_FOLDER, 'data/interim')
@@ -144,21 +141,6 @@ def build_dataset (X_group_df: pd.DataFrame, X_technique_df:pd.DataFrame, y_df:p
         y_tf))
     return res_dataset
 
-RAGGED_GROUP_FEATURES = [INPUT_GROUP_SOFTWARE_ID, INPUT_GROUP_TACTICS]
-SCALAR_GROUP_FEATURES = [INPUT_GROUP_INTERACTION_RATE]
-TENSOR_GROUP_FEATURES = [INPUT_GROUP_DESCRIPTION]
-RAGGED_TECHNIQUE_FEATURES = [
-    INPUT_TECHNIQUE_DATA_SOURCES,
-    INPUT_TECHNIQUE_DEFENSES_BYPASSED,
-    INPUT_TECHNIQUE_DETECTION_NAME,
-    INPUT_TECHNIQUE_MITIGATION_ID,
-    INPUT_TECHNIQUE_PERMISSIONS_REQUIRED,
-    INPUT_TECHNIQUE_PLATFORMS,
-    INPUT_TECHNIQUE_SOFTWARE_ID,
-    INPUT_TECHNIQUE_TACTICS
-]
-SCALAR_TECHNIQUE_FEATURES = [INPUT_TECHNIQUE_INTERACTION_RATE]
-TENSOR_TECHNIQUE_FEATURES = [INPUT_TECHNIQUE_DESCRIPTION]
 
 def build_dataset_2 (X_group_df: pd.DataFrame, X_technique_df:pd.DataFrame, y_df:pd.DataFrame, ragged_input: bool):
     """
