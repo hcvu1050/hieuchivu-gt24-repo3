@@ -151,3 +151,15 @@ def make_look_up_table (learned_features: np.ndarray, id_list: list):
     look_up_table['sorted_similar_techniques'] = look_up_table['sorted_indices'].apply (_technique_index_id_map)
     look_up_table.drop (columns= ['sorted_indices'], inplace= True)
     return look_up_table
+
+def get_technique_earliest_tatic_stage (technique_tactics_df: pd.DataFrame(),tactics_order_df: pd.DataFrame()):
+    technique_earliest_stage = pd.merge (
+        left = technique_tactics_df.explode (INPUT_TECHNIQUE_TACTICS),
+        right = tactics_order_df,
+        how = 'left', left_on= INPUT_TECHNIQUE_TACTICS, right_on= 'tactic_name'
+    )
+    technique_earliest_stage = technique_earliest_stage.groupby (TECHNIQUE_ID_NAME, as_index= False).agg(min)
+    technique_earliest_stage.drop(columns = [INPUT_TECHNIQUE_TACTICS, 'tactic_name', 'tactic_ID'], inplace= True)
+    technique_earliest_stage.rename (columns= {'stage_order': 'technique_earliest_stage'}, inplace= True)
+    return technique_earliest_stage
+    
