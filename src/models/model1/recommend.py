@@ -155,7 +155,7 @@ def make_look_up_table (learned_features: np.ndarray, id_list: list):
     look_up_table['sorted_similar_techniques'] = look_up_table['sorted_similar_techniques'].apply(lambda x: x[1:])
     return look_up_table
 
-def get_technique_earliest_tatic_stage (technique_tactics_df: pd.DataFrame(),tactics_order_df: pd.DataFrame()):
+def get_technique_tatic_stage (technique_tactics_df: pd.DataFrame(),tactics_order_df: pd.DataFrame()):
     
     technique_stage = pd.merge (
     left = technique_tactics_df.explode ('input_technique_tactics'),
@@ -177,4 +177,14 @@ def get_technique_earliest_tatic_stage (technique_tactics_df: pd.DataFrame(),tac
         how = 'inner', on = 'technique_ID'
     )
     return technique_stage
+
+def get_interacted_tactic_range (interacted_techniques: list, look_up_table: pd.DataFrame()):
+    """From a list of interacted techniques: Returns a tuple containing the earliest and latest tactic stage
+    """
+    earliest_stage = 20
+    latest_stage  = 0
+    for technique in interacted_techniques: 
+        earliest_stage = min (earliest_stage, look_up_table.loc[look_up_table['technique_ID'] == technique, 'technique_earliest_stage'].iloc[0])
+        latest_stage = max (latest_stage, look_up_table.loc[look_up_table['technique_ID'] == technique, 'technique_latest_stage'].iloc[0])
     
+    return (earliest_stage, latest_stage)
