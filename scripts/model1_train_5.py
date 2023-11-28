@@ -60,6 +60,8 @@ def main():
     train_config = config['train']
     batch_size = train_config['batch_size']
     epochs = train_config['epochs']
+    patience = train_config['patience']
+    start_from_epoch = train_config['start_from_epoch']
     learning_rate = float (train_config['learning_rate'])
     class_weights = train_config['class_weights']
     
@@ -113,13 +115,24 @@ def main():
                    metrics = [tf.keras.metrics.AUC(curve = 'PR', from_logits= True, name = 'auc-pr')],
                    )
     
+    
+    early_stopping = tf.keras.callbacks.EarlyStopping (
+        verbose = 1,
+        monitor = 'val_auc-pr',
+        mode = 'max',
+        patience = patience,
+        start_from_epoch= start_from_epoch,
+        restore_best_weights= True
+    )
+    
     #### 👉 TRAIN MODEL 
     start_time = time.time()
     history = model.fit (
         train_dataset,
         validation_data= cv_dataset,
         epochs=epochs,
-        class_weight=class_weights
+        class_weight=class_weights,
+        callbacks= [early_stopping]
     )
     end_time = time.time()
     elapsed_time = end_time - start_time
