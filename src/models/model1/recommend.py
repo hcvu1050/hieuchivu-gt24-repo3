@@ -187,13 +187,14 @@ def get_interacted_tactic_range (interacted_techniques: list, look_up_table: pd.
     
     return (earliest_stage, latest_stage)
 
-# def get_most_similar_techniques (interacted_techniques: list,  look_up_table: pd.DataFrame(), n: int):
-#     """From a list of interacted techniques: Returns a list of most similar techniques. \n
-#     Takes n most similar techniques for each interacted techniques.
-#     """
-#     similar_techniques = list
-    
-#     ### get the rows in dataframes that has interacted technique ids
-#     for technique in interacted_techniques:
+def get_most_similar_techniques (interacted_techniques: list,  look_up_table: pd.DataFrame(), n: int):
+    """From a list of interacted techniques: Returns a list of most similar techniques. \n
+    Takes n most similar techniques for each interacted techniques.
+    """
+    filtered_table = look_up_table[look_up_table['technique_ID'].isin(interacted_techniques)]
+    # get the first n items in each list
+    filtered_table.loc[:, 'sorted_similar_techniques'] = filtered_table['sorted_similar_techniques'].apply(lambda x: x[0:n])
+    # filter duplicates by getting unique values
+    return (list(filtered_table['sorted_similar_techniques'].explode().unique()))
         
     
