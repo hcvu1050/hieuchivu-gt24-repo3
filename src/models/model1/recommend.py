@@ -181,20 +181,32 @@ def get_technique_tatic_stage (technique_tactics_df: pd.DataFrame(),tactics_orde
 def get_interacted_tactic_range (interacted_techniques: list, look_up_table: pd.DataFrame()):
     """From a list of interacted techniques: Returns a tuple containing the earliest and latest tactic stage
     """
-    filtered_table = look_up_table[look_up_table['technique_ID'].isin(interacted_techniques)]
-    earliest_stage = filtered_table['technique_earliest_stage'].min()
-    latest_stage = filtered_table['technique_earliest_stage'].max()
+    interacted_table = look_up_table[look_up_table['technique_ID'].isin(interacted_techniques)]
+    earliest_stage = interacted_table['technique_earliest_stage'].min()
+    latest_stage = interacted_table['technique_earliest_stage'].max()
     
     return (earliest_stage, latest_stage)
 
-def get_most_similar_techniques (interacted_techniques: list,  look_up_table: pd.DataFrame(), n: int):
-    """From a list of interacted techniques: Returns a list of most similar techniques. \n
-    Takes n most similar techniques for each interacted techniques.
+def get_cadidate_techniques (interacted_techniques: list,  look_up_table: pd.DataFrame(), n: int, mode: str = 'latest'):
+    """From a list of interacted techniques: Returns a list of candidate techniques. \n
+    Step 1: Takes n most similar techniques for each interacted techniques.\n
+    Step 2: From the list of Step 1: filter some techniques based on the tactic stage of the interacted techniques\n
+        If `mode == 'latest'`: remove candidate techniques if their latest tactic stage is before the latest interacted stage\n
+        If `mode == 'earliest'`: remove candidate techniques if their latest tactic stage is before the earliest interacted stage
+    
     """
-    filtered_table = look_up_table[look_up_table['technique_ID'].isin(interacted_techniques)]
+    interacted_table = look_up_table[look_up_table['technique_ID'].isin(interacted_techniques)]
     # get the first n items in each list
-    filtered_table.loc[:, 'sorted_similar_techniques'] = filtered_table['sorted_similar_techniques'].apply(lambda x: x[0:n])
+    interacted_table.loc[:, 'sorted_similar_techniques'] = interacted_table['sorted_similar_techniques'].apply(lambda x: x[0:n])
     # filter duplicates by getting unique values
-    return (list(filtered_table['sorted_similar_techniques'].explode().unique()))
+    candidate_techniques = list(interacted_table['sorted_similar_techniques'].explode().unique())
+    
+    earliest_interacted_stage, latest_interacted_stage = get_interacted_tactic_range (interacted_techniques, look_up_table)
+    candidate_table = look_up_table[look_up_table['technique_ID'].isin(candidate_techniques)]
+    if mode == 'latest':
+        candidate_techniques = list (candidate_table[candidate_table['technique_latest_stage'] >= latest_interacted_stage]['technique_ID'].values)
+    elif mode == 'earliest':
+        candidate_techniques = list (candidate_table[candidate_table['technique_latest_stage'] >= earliest_interacted_stage]['technique_ID'].values)
+    return candidate_techniques
         
     
