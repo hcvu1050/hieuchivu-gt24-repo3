@@ -153,13 +153,25 @@ def make_look_up_table (learned_features: np.ndarray, id_list: list):
     return look_up_table
 
 def get_technique_earliest_tatic_stage (technique_tactics_df: pd.DataFrame(),tactics_order_df: pd.DataFrame()):
-    technique_earliest_stage = pd.merge (
-        left = technique_tactics_df.explode (INPUT_TECHNIQUE_TACTICS),
-        right = tactics_order_df,
-        how = 'left', left_on= INPUT_TECHNIQUE_TACTICS, right_on= 'tactic_name'
+    
+    technique_stage = pd.merge (
+    left = technique_tactics_df.explode ('input_technique_tactics'),
+    right = tactics_order_df,
+    how = 'left', left_on= 'input_technique_tactics', right_on= 'tactic_name'
     )
-    technique_earliest_stage = technique_earliest_stage.groupby (TECHNIQUE_ID_NAME, as_index= False).agg(min)
-    technique_earliest_stage.drop(columns = [INPUT_TECHNIQUE_TACTICS, 'tactic_name', 'tactic_ID'], inplace= True)
+    technique_earliest_stage = technique_stage.groupby ('technique_ID', as_index= False).agg(min)
+    technique_earliest_stage.drop (columns= [col for col in technique_earliest_stage if col not in ['technique_ID', 'stage_order']], inplace= True)
     technique_earliest_stage.rename (columns= {'stage_order': 'technique_earliest_stage'}, inplace= True)
-    return technique_earliest_stage
+
+    technique_latest_stage = technique_stage.groupby ('technique_ID', as_index= False).agg(max)
+    technique_latest_stage.drop (columns= [col for col in technique_latest_stage if col not in ['technique_ID', 'stage_order']], inplace= True)
+    technique_latest_stage.rename (columns= {'stage_order': 'technique_latest_stage'}, inplace= True)
+
+    # technique_earliest_stage.head(40)
+    technique_stage = pd.merge(
+        left = technique_earliest_stage,
+        right = technique_latest_stage, 
+        how = 'inner', on = 'technique_ID'
+    )
+    return technique_stage
     
