@@ -1,6 +1,8 @@
 from ...constants import *
-import tensorflow as tf
 import pandas as pd
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+import tensorflow as tf
 from tensorflow import keras
 import sys,os
 sys.path.append("..")
@@ -129,3 +131,23 @@ def build_technique_dataset (X_technique_df: pd.DataFrame()):
     
     res_dataset = tf.data.Dataset.from_tensor_slices (input_dict)
     return res_dataset
+
+def make_look_up_table (learned_features: np.ndarray, id_list: list):
+    similarity_matrix = cosine_similarity (learned_features)
+    m, _ = similarity_matrix.shape
+    sorted_indices_desc_list = []
+    # Loop through each row (1D vector) in the 2D similarity_matrix
+    for i in range(m):
+        sorted_indices_desc = np.argsort(similarity_matrix[i])[::-1]
+        sorted_indices_desc_list.append(sorted_indices_desc)
+    look_up_table = pd.DataFrame (
+        {
+            'technique_ID' : id_list,
+            'sorted_indices' : sorted_indices_desc_list
+        }
+    )
+    def _technique_index_id_map(lst):
+        return [id_list[i] for i in lst]
+    look_up_table['sorted_similar_techniques'] = look_up_table['sorted_indices'].apply (_technique_index_id_map)
+    look_up_table.drop (columns= ['sorted_indices'], inplace= True)
+    return look_up_table
