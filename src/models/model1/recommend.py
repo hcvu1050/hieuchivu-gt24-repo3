@@ -212,7 +212,7 @@ def get_cadidate_techniques (interacted_techniques: list,  look_up_table: pd.Dat
         candidate_techniques = list (candidate_table[candidate_table['technique_latest_stage'] >= earliest_interacted_stage]['technique_ID'].values)
     return candidate_techniques
         
-def extract_cisa_techniques (url: str ):
+def extract_cisa_techniques (url: str, sort_mode: str = None, look_up_table: pd.DataFrame() = None):
     response = requests.get(url)
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
@@ -223,7 +223,19 @@ def extract_cisa_techniques (url: str ):
     else:
         print('Failed to fetch the webpage.')
         return
-    return list(set(filtered_strings))
+    unique_items = []
+    seen = set()
+
+    for item in filtered_strings:
+        if item not in seen:
+            unique_items.append(item)
+            seen.add(item)
+    if sort_mode == 'earliest':
+        interacted_techniques = unique_items
+        interacted_table = look_up_table[look_up_table['technique_ID'].isin(interacted_techniques)]
+        sorted_table= interacted_table.sort_values (by = 'technique_earliest_stage', ascending=True)
+        unique_items = list(sorted_table['technique_ID'].values )
+    return unique_items
 
 def build_new_group_profile (processed_group_features: pd.DataFrame(), new_group_id: str):
     default_min_interaction = min(processed_group_features['input_group_interaction_rate'])
