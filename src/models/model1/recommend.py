@@ -224,3 +224,18 @@ def extract_cisa_techniques (url: str ):
         print('Failed to fetch the webpage.')
         return
     return list(set(filtered_strings))
+
+def build_new_group_profile (processed_group_features: pd.DataFrame(), new_group_id: str):
+    default_min_interaction = min(processed_group_features['input_group_interaction_rate'])
+    avg_description = processed_group_features['input_group_description'].apply(pd.Series).mean().tolist()
+
+    values = {
+        'group_ID': new_group_id,
+        'input_group_software_id': [[]],
+        'input_group_tactics': [[]],
+        'input_group_description': [avg_description],
+        'input_group_interaction_rate': default_min_interaction,
+        
+    }
+    new_group_features = pd.DataFrame(values, index=[0])
+    return new_group_features
