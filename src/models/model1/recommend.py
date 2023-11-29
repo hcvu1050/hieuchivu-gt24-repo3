@@ -1,6 +1,9 @@
 from ...constants import *
 import pandas as pd
 import numpy as np
+import requests
+from bs4 import BeautifulSoup
+import re
 from sklearn.metrics.pairwise import cosine_similarity
 import tensorflow as tf
 from tensorflow import keras
@@ -209,4 +212,15 @@ def get_cadidate_techniques (interacted_techniques: list,  look_up_table: pd.Dat
         candidate_techniques = list (candidate_table[candidate_table['technique_latest_stage'] >= earliest_interacted_stage]['technique_ID'].values)
     return candidate_techniques
         
-    
+def extract_cisa_techniques (url: str ):
+    response = requests.get(url)
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+
+        regex_pattern = r'T\d{4}\.*\d*'  
+        filtered_strings = [tag.string for tag in soup.find_all(string=re.compile(regex_pattern)) if tag.string]
+
+    else:
+        print('Failed to fetch the webpage.')
+        return
+    return list(set(filtered_strings))
