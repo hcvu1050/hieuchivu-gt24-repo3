@@ -54,6 +54,9 @@ def reduce_vals_based_on_percentage (df: pd.DataFrame(), feature_name: str, perc
             break
     def _filter_seltected_vals (lst):
         res = [item for item in lst if item in selected_vals]
+        # replacing all other values are not in the selected list with "other". 
+        # condition: if the length of the original list is larger than that of the reduced list, some values
+        # are removed. Present these removed values as "other" in the output list.
         if include_others and len(lst) > len(res): 
             res.append ('other')
         return res

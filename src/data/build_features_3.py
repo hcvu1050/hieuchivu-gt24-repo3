@@ -183,7 +183,7 @@ def build_feature_interaction_frequency (label_df: pd.DataFrame(),
                                          object_ID: str, 
                                          feature_name: str, normalize: bool = True) -> pd.DataFrame():
     """Add a feature created by the number of interactions each Technique or Group was involved\n
-    CAUTION: This feature should be built upon TRAINING labels only to avoid data leakage.
+    CAUTION: be aware of data leakage.
 
     Args:
         label_df (pd.DataFrame): interation table
@@ -212,7 +212,7 @@ def build_feature_used_tactics (label_df: pd.DataFrame(),
     """
     Add feature for Group containing interacted Tactics of each Group.
     Each feature value is a list of strings (of tactic names)
-    CAUTION: This feature should be built upon TRAINING labels only to avoid data leakage.
+    CAUTION: be aware of data leakage.
 
     """
     pos_y = label_df[label_df['label'] == 1]

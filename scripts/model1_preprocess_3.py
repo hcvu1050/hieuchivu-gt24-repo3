@@ -76,7 +76,7 @@ def main():
     #### 👉1- LOAD DATA
     group_features_df, technique_features_df, labels_df = get_data(data_type = 'pkl')
     tactics_order = pd.read_csv ('../data/raw/tactics_order.csv', index_col=0)
-    labels_df.to_pickle ('tmp_m1_pp_label_org.pkl')
+    labels_df.to_pickle ('tmp_m1pp_label_org.pkl')
     #### 👉1b - (OPT) LIMIT SAMPLES
     if limit_samples_based_on_earliest_stage:
         labels_df = _limit_samples_based_on_earliest_stage (
@@ -131,18 +131,18 @@ def main():
                 group_features_df = batch_reduce_vals_based_on_percentage (group_features_df, setting = limit_group_features)
     
     #### 👉 3c- Build addtional features 
+    ### 3c.1 technique interaction frequency: ONLY calculate the interactions from the TRAIN data
     technique_features_df = build_feature_interaction_frequency (label_df= train_y_df, feature_df= technique_features_df, object_ID= 'technique_ID', feature_name = 'input_technique_interaction_rate')
-    group_features_df = build_feature_interaction_frequency (label_df= train_y_df, feature_df= group_features_df, object_ID= 'group_ID', feature_name = 'input_group_interaction_rate')
+    
+    ### 3c.2 group interaction frequency: DON't have to separate TRAIN data
+    group_features_df = build_feature_interaction_frequency (label_df= labels_df, feature_df= group_features_df, object_ID= 'group_ID', feature_name = 'input_group_interaction_rate')
+    
+    #### 3c.3 group used tactics: DON'T have to separate TRAIN data
+    group_features_df = build_feature_used_tactics (label_df= labels_df, group_df= group_features_df, technique_df= technique_features_df, feature_name= 'input_group_tactics')
     #### ❗extra ragged feature, will be added to selected_group_features
-    group_features_df = build_feature_used_tactics (label_df= train_y_df, group_df= group_features_df, technique_df= technique_features_df, feature_name= 'input_group_tactics')
     selected_group_features = selected_group_features + ['input_group_tactics']
-    
-    ### export for unit test
-    technique_features_df.to_pickle ('tmp_m1pp_technique.pkl')
-    group_features_df.to_pickle ('tmp_m1pp_group.pkl')
-    
-    
-    ### export for recommendation phase
+        
+    ### export for recommendation phase / unit test
     dfs = {
         'technnique_features': technique_features_df,
         'group_features': group_features_df
