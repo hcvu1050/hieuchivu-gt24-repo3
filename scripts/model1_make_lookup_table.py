@@ -1,3 +1,7 @@
+"""
+Make a look-up table (Technique -> List of most similar Techniques) based on learned features from a trained mode
+"""
+
 import sys, os, argparse
 import pandas as pd
 import tensorflow as tf
