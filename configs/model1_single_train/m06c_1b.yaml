@@ -39,10 +39,10 @@ model_architecture:
   masking: False
 
 train:
-  epochs: 300
+  epochs: 200
   patience: 50
   start_from_epoch: 50
-  learning_rate:  3e-6
+  learning_rate:  1e-5
   batch_size: 32
   class_weights: 
     0: 1.0
