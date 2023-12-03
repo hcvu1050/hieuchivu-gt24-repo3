@@ -120,10 +120,7 @@ def extract_technique_branch (model_name: str):
     )
     return sub_model
 
-def initalize_technique_interaction_rate (X_technique_df: pd.DataFrame()):
-    """
-    Initialize interaction rate for unused technique
-    """
+
 
 def build_technique_dataset (X_technique_df: pd.DataFrame()):
     X_technique_df = X_technique_df.drop (columns= TECHNIQUE_ID_NAME)
@@ -241,51 +238,6 @@ def extract_cisa_techniques (url: str, sort_mode: str = None, look_up_table: pd.
         sorted_table= interacted_table.sort_values (by = 'technique_earliest_stage', ascending=True)
         unique_items = list(sorted_table['technique_ID'].values )
     return unique_items
-
-def initialize_technique_interaction_rate (technique_df: pd.DataFrame(), label_df: pd.DataFrame(), mode: str):
-    """Initialize technique interaction rate for unused Techniques.\n
-    For each unused technique, the value for the interaction rate is updated to either the minimum or the average interaction rate of the used Techniques in the same tactic group(s).\n
-    If the unsued technique belongs to more than one tactic, then the value is updated to the average value of calculated min/average tactic interaction rate.\n
-    CAUTION: be aware of data leakage.
-    Args:
-        X_technique_df (pd.DataFrame): preprocessed technique features
-        label_df: interaction matrix 
-        mode (str, optional): Defaults to 'minimum' | 'avg'.
-    """
-    
-    if mode not in ['min', 'avg']:
-        raise ValueError("mode must be 'min' or 'avg'")
-    ### 1. Get the list of unused Techniques
-    pos_y = label_df[label_df['label'] == 1]
-    used_techniques=  pos_y['technique_ID'].unique()
-    all_techniques = technique_df['technique_ID'].unique()
-    unused_techniques = [t for t in all_techniques if t not in used_techniques]
-    
-    ### 2. Get the min or average interaction rate of each tactic used
-    tactic_interaction_rate = technique_df[[ 'input_technique_tactics', 'input_technique_interaction_rate']]
-    tactic_interaction_rate = tactic_interaction_rate.explode ('input_technique_tactics')
-    if mode == 'avg':
-        tactic_interaction_rate = tactic_interaction_rate.groupby (by= 'input_technique_tactics', as_index= False).agg ('mean')
-    elif mode == 'min':
-        tactic_interaction_rate = tactic_interaction_rate.groupby (by= 'input_technique_tactics', as_index= False).agg (lambda x: sorted(x.unique())[1])
-    
-    ### 3. Make a table that assign new values for the unused techniques
-    unused_techniques = technique_df[technique_df['technique_ID'].isin(unused_techniques)]
-    unused_techniques = unused_techniques[['technique_ID', 'input_technique_tactics']]
-    unused_techniques = unused_techniques.explode ('input_technique_tactics')
-    unused_techniques = pd.merge (left = unused_techniques, right = tactic_interaction_rate, how = 'left', on = 'input_technique_tactics')
-    unused_techniques = unused_techniques[['technique_ID', 'input_technique_interaction_rate']]
-    unused_techniques = unused_techniques.groupby (by = 'technique_ID', as_index= False).agg ('mean')
-        
-    ### 4. Update the values in the original table `technique_df`    
-    for index, row in unused_techniques.iterrows():
-        id_val = row['technique_ID']
-        updated_val = row['input_technique_interaction_rate']
-        
-        # Locate the corresponding row in df_main and update the value
-        technique_df.loc[technique_df['technique_ID'] == id_val, 'input_technique_interaction_rate'] = updated_val
-    return technique_df
-
 
 def build_new_group_profile (processed_group_features: pd.DataFrame(), new_group_id: str):
     default_min_interaction = min(processed_group_features['input_group_interaction_rate'])
