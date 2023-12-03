@@ -39,6 +39,10 @@ limit_technique_features:
   input_technique_software_id: 0.7
   # input_technique_tactics: ~
 
+initialize_technique_interaction: 
+  - 'tactics'
+  - 'avg'
+
 resampling: 
   oversample: 0.2
   undersample: 0.3

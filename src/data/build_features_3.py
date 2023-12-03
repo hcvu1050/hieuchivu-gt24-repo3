@@ -181,7 +181,8 @@ def build_feature_sentence_embed (df: pd.DataFrame(), feature_name:str, tokenize
 def build_feature_interaction_frequency (label_df: pd.DataFrame(), 
                                          feature_df: pd.DataFrame(), 
                                          object_ID: str, 
-                                         feature_name: str, normalize: bool = True) -> pd.DataFrame():
+                                         feature_name: str, normalize: bool = True,
+                                         initialize_null_interaction: list = None) -> pd.DataFrame():
     """Add a feature created by the number of interactions each Technique or Group was involved\n
     CAUTION: be aware of data leakage.
 
@@ -190,14 +191,57 @@ def build_feature_interaction_frequency (label_df: pd.DataFrame(),
         feature_df (pd.DataFrame): feature table to which the new feature is added to
         object_ID (str): object ID
         feature_name (str): column name for the new feature that will be added
-
+        initialize_null_interaction (str): initialize interactions for not-interacted objects, either by the average or minimum interaction rate of the interacted objects. 
+        This option is used for only Techniques and is calculated based only on TRAIN data.
     Returns:
         pd.DataFrame: return the feature table with the added feature column
     """
     interaction_count = label_df[label_df['label'] == 1.0][object_ID].value_counts()
     res_df = pd.merge (left = feature_df, right = interaction_count, on = object_ID, how = 'left')
     res_df.rename (columns= {'count': feature_name}, inplace= True)
-    res_df[feature_name].fillna (0.0, inplace= True)
+    initial_value = 0
+    if initialize_null_interaction is not None:
+        if initialize_null_interaction[0] == 'global': 
+            if initialize_null_interaction[1] == "min": 
+                initial_value = res_df[feature_name].dropna().astype(float).min()
+            elif initialize_null_interaction[1] == "avg":
+                initial_value = res_df[feature_name].dropna().astype(float).mean()
+                
+        elif initialize_null_interaction[0] == 'tactics':
+            ### 1. Get the list of unused Techniques
+            pos_y = label_df[label_df['label'] == 1]
+            used_techniques=  pos_y['technique_ID'].unique()
+            all_techniques = res_df['technique_ID'].unique()
+            unused_techniques = [t for t in all_techniques if t not in used_techniques]
+            
+            ### 2. Get the min or average interaction rate of each tactic used
+            tactic_interaction_rate = res_df[[ 'input_technique_tactics', 'input_technique_interaction_rate']]
+            tactic_interaction_rate = tactic_interaction_rate.explode ('input_technique_tactics')
+            if initialize_null_interaction[1] == 'avg':
+                tactic_interaction_rate = tactic_interaction_rate.groupby (by= 'input_technique_tactics', as_index= False)['input_technique_interaction_rate'].mean()
+            elif initialize_null_interaction[1] == 'min':
+                tactic_interaction_rate = tactic_interaction_rate.groupby (by= 'input_technique_tactics', as_index= False)['input_technique_interaction_rate'].min()
+                
+            
+            ### 3. Make a table that assign new values for the unused techniques
+            unused_techniques = res_df[res_df['technique_ID'].isin(unused_techniques)]
+            unused_techniques = unused_techniques[['technique_ID', 'input_technique_tactics']]
+            unused_techniques = unused_techniques.explode ('input_technique_tactics')
+            unused_techniques = pd.merge (left = unused_techniques, right = tactic_interaction_rate, how = 'left', on = 'input_technique_tactics')
+            unused_techniques = unused_techniques[['technique_ID', 'input_technique_interaction_rate']]
+            unused_techniques = unused_techniques.groupby (by = 'technique_ID', as_index= False).agg ('mean')
+            ### 4. Update the values in the original table `technique_df`    
+            for index, row in unused_techniques.iterrows():
+                id_val = row['technique_ID']
+                updated_val = row['input_technique_interaction_rate']
+                
+                # Locate the corresponding row in df_main and update the value
+                res_df.loc[res_df['technique_ID'] == id_val, 'input_technique_interaction_rate'] = updated_val
+        
+    elif initialize_null_interaction is None: 
+        initial_value = 0
+    res_df[feature_name].fillna (initial_value, inplace= True)
+
     if normalize: 
         scaler = StandardScaler()
         res_df[feature_name] = scaler.fit_transform (res_df[[feature_name]])

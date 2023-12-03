@@ -41,7 +41,7 @@ def main():
     id_list = list (technique_features_df['technique_ID'])
     technique_features_dataset = build_technique_dataset (technique_features_df)
 
-    ### get learned technique features, then create lookup table
+    ### get learned technique features, initialize interaction rate for unused technique, then create lookup table
     technique_features_dataset = technique_features_dataset.batch(32)
     learned_features = submodel.predict (technique_features_dataset)
     look_up_table = make_look_up_table (learned_features, id_list)

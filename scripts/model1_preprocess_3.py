@@ -71,12 +71,12 @@ def main():
     limit_technique_features = config['limit_technique_features']
     limit_group_features = config['limit_group_features']
     resampling = config['resampling']
+    initialize_technique_interaction = config ['initialize_technique_interaction']
     train_size, train_cv_size, cv_size, test_size = data_split
     
     #### 👉1- LOAD DATA
     group_features_df, technique_features_df, labels_df = get_data(data_type = 'pkl')
     tactics_order = pd.read_csv ('../data/raw/tactics_order.csv', index_col=0)
-    labels_df.to_pickle ('tmp_m1pp_label_org.pkl')
     #### 👉1b - (OPT) LIMIT SAMPLES
     if limit_samples_based_on_earliest_stage:
         labels_df = _limit_samples_based_on_earliest_stage (
@@ -89,7 +89,6 @@ def main():
         labels_df = _limit_samples_based_on_group_interaction (
             labels_df= labels_df, min_instances= limit_samples_based_on_group_interaction
         )
-    labels_df.to_pickle ('tmp_m1pp_label.pkl')
     
     #### 👉2- SPLIT LABELS
     print ('--splitting data')
@@ -113,9 +112,6 @@ def main():
                                                          group_features_df= group_features_df,
                                                          group_feature_names=selected_group_features,
                                                          save_as_csv= save_intermediary_table)        
-    ### export for unit test
-    technique_features_df.to_pickle ('tmp_m1pp_technique_org.pkl')
-    group_features_df.to_pickle ('tmp_m1pp_group_org.pkl')
     
     #### 👉3b- limit feature cardinality
     if limit_cardinality is not None: 
@@ -132,7 +128,10 @@ def main():
     
     #### 👉 3c- Build addtional features 
     ### 3c.1 technique interaction frequency: ONLY calculate the interactions from the TRAIN data
-    technique_features_df = build_feature_interaction_frequency (label_df= train_y_df, feature_df= technique_features_df, object_ID= 'technique_ID', feature_name = 'input_technique_interaction_rate')
+    technique_features_df = build_feature_interaction_frequency (label_df= train_y_df, 
+                                                                 feature_df= technique_features_df, 
+                                                                 object_ID= 'technique_ID', 
+                                                                 feature_name = 'input_technique_interaction_rate', initialize_null_interaction= initialize_technique_interaction)
     
     ### 3c.2 group interaction frequency: DON't have to separate TRAIN data
     group_features_df = build_feature_interaction_frequency (label_df= labels_df, feature_df= group_features_df, object_ID= 'group_ID', feature_name = 'input_group_interaction_rate')
@@ -142,12 +141,6 @@ def main():
     #### ❗extra ragged feature, will be added to selected_group_features
     selected_group_features = selected_group_features + ['input_group_tactics']
         
-    ### export for recommendation phase / unit test
-    dfs = {
-        'technnique_features': technique_features_df,
-        'group_features': group_features_df
-    }
-    batch_save_df_to_pkl (dfs, TARGET_PATH, prefix = 'processed')
     #### 👉Make vocab
     make_vocab(group_features_df, [feature for feature in selected_group_features if feature not in ['input_group_description']], path = TARGET_PATH)
     make_vocab (technique_features_df, [feature for feature in selected_technique_features if feature not in ['input_technique_description']], path = TARGET_PATH)
@@ -165,6 +158,15 @@ def main():
             'train_cv_y': train_cv_y_df,
         }
         batch_save_df_to_csv (dfs, TARGET_PATH, postfix='resampled')
+    
+    ### export for recommendation phase / unit test
+    dfs = {
+        'technnique_features': technique_features_df,
+        'group_features': group_features_df,
+        'train_labels': train_y_df,
+        'cv_labels': cv_y_df,
+    }
+    batch_save_df_to_pkl (dfs, TARGET_PATH, prefix = 'processed')
     
     #### 4- ALIGNING features to labels
     ## train set
