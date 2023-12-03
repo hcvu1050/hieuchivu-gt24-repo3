@@ -239,16 +239,53 @@ def extract_cisa_techniques (url: str, sort_mode: str = None, look_up_table: pd.
         unique_items = list(sorted_table['technique_ID'].values )
     return unique_items
 
-def build_new_group_profile (processed_group_features: pd.DataFrame(), new_group_id: str):
-    default_min_interaction = min(processed_group_features['input_group_interaction_rate'])
-    avg_description = processed_group_features['input_group_description'].apply(pd.Series).mean().tolist()
+def build_new_group_profile (processed_group_features: pd.DataFrame(), label_df: pd.DataFrame(), new_group_id: str, settings: dict):
+    """Build features for a new groups, including:
+    1. Description embedding: equals to the avg pooling of the processed groups' embeddings\n
+    2. Interaction rate: equals to the avg or min interaction rate of the interacted groups\n
+    3. Interacted tactics: average tactic interaction rate for each tactic from the interacted groups\n
+    4. Used software: the N most commonly used software, where N is the number of average software used by interacted groups\n
+    Args:
+        processed_group_features (pd.DataFrame): _description_
+        label_df (pd.DataFrame): _description_
+        new_group_id (str): _description_
+        settings (dict): _description_
 
+    Returns:
+        _type_: _description_
+    """
+    
+    pos_y = label_df[label_df['label'] == 1]
+    interacted_groups = list(pos_y['group_ID'].unique())
+    interacted_group_features = processed_group_features [processed_group_features['group_ID'].isin(interacted_groups)]    
+    
+    initial_interaction = 0
+    initial_description = interacted_group_features['input_group_description'].apply(pd.Series).mean().tolist()
+    initial_tactics = [[]]
+    initial_software =  [[]]
+    if settings['interaction'] == 'min':
+        initial_interaction = (interacted_group_features['input_group_interaction_rate']).min()
+    elif settings['interaction'] == 'avg':
+        initial_interaction = (interacted_group_features['input_group_interaction_rate']).mean()
+    
+    avg_tactic_rate = interacted_group_features['input_group_tactics'].explode().value_counts()/len(interacted_groups)
+    rounded_avg_tactic_rate = avg_tactic_rate.round().astype(int)
+    initial_tactics = [[idx for idx, val in rounded_avg_tactic_rate.items() for _ in range(val)]]
+    
+    avg_software_interaction_rate = interacted_group_features['input_group_software_id'].apply(len).mean().round().astype(int)
+    most_frequent_software = interacted_group_features['input_group_software_id'].explode().value_counts().sort_values(ascending = False)
+    most_frequent_software = list(most_frequent_software.index)
+    most_frequent_software.remove('other')
+    most_frequent_software.remove('')
+    initial_software = [most_frequent_software[0:avg_software_interaction_rate]]
+    
+    
     values = {
         'group_ID': new_group_id,
-        'input_group_software_id': [[]],
-        'input_group_tactics': [[]],
-        'input_group_description': [avg_description],
-        'input_group_interaction_rate': default_min_interaction,
+        'input_group_software_id': initial_software,
+        'input_group_tactics': initial_tactics,
+        'input_group_description': [initial_description],
+        'input_group_interaction_rate': initial_interaction,
         
     }
     new_group_features = pd.DataFrame(values, index=[0])
