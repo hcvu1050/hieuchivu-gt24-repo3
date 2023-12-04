@@ -35,14 +35,14 @@ model_architecture:
   regularizer_weight: ~
   initializer: he
   embeddings_initializer: he_uniform
-  dropout_rate: 0.45
+  dropout_rate: 0.4
   masking: False
 
 train:
-  epochs: 200
+  epochs: 300
   patience: 50
   start_from_epoch: 50
-  learning_rate:  1e-5
+  learning_rate:  3e-6
   batch_size: 32
   class_weights: 
     0: 1.0

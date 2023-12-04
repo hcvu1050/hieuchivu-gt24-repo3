@@ -7,7 +7,7 @@ import pandas as pd
 import tensorflow as tf
 from tensorflow import keras
 sys.path.append("..")
-from src.models.model1.recommend import extract_technique_branch, build_technique_dataset, make_look_up_table, get_technique_earliest_tatic_stage
+from src.models.model1.recommend import extract_technique_branch, build_technique_dataset, make_look_up_table, get_technique_tatic_stage
 ROOT_FOLDER = os.path.dirname(os.path.dirname(os.path.abspath('__file__')))
 TRAINED_MODELS_FOLDER = os.path.join (ROOT_FOLDER, 'trained_models', 'model1')
 TARGET_PATH = os.path.join(ROOT_FOLDER, 'data/lookup_tables')
@@ -48,7 +48,7 @@ def main():
     
     ### add earliest tactic stage to look-up table
     tactics_order= pd.read_csv (os.path.join (ROOT_FOLDER, 'data/raw/tactics_order.csv'), index_col= 0)
-    technique_earliest_tatic_stage = get_technique_earliest_tatic_stage (technique_features_df[['technique_ID', 'input_technique_tactics']], tactics_order_df=tactics_order)
+    technique_earliest_tatic_stage = get_technique_tatic_stage (technique_features_df[['technique_ID', 'input_technique_tactics']], tactics_order_df=tactics_order)
     look_up_table = pd.merge(
         left = look_up_table, 
         right = technique_earliest_tatic_stage,

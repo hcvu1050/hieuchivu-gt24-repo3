@@ -198,7 +198,6 @@ def get_cadidate_techniques (interacted_techniques: list,  look_up_table: pd.Dat
     Step 2: From the list of Step 1: filter some techniques based on the tactic stage of the interacted techniques\n
         If `mode == 'latest'`: remove candidate techniques if their latest tactic stage is before the latest interacted stage\n
         If `mode == 'earliest'`: remove candidate techniques if their latest tactic stage is before the earliest interacted stage
-    
     """
     interacted_table = look_up_table[look_up_table['technique_ID'].isin(interacted_techniques)]
     # get the first n items in each list
