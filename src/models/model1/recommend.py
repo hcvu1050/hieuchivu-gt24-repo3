@@ -214,30 +214,32 @@ def get_cadidate_techniques (interacted_techniques: list,  look_up_table: pd.Dat
         candidate_techniques = list (candidate_table[candidate_table['technique_latest_stage'] >= earliest_interacted_stage]['technique_ID'].values)
     return candidate_techniques
         
-def extract_cisa_techniques (url: str, sort_mode: str = None, look_up_table: pd.DataFrame() = None):
+def extract_cisa_techniques (url: str) -> list:
+    """Extract the techniques used by an advesary in a CISA Report url by web scraping.\n
+    The techniques are assumed to be stored in a `<table>` class and sorted by the report.
+
+    Args:
+        url (str): Url of the CISA report
+
+    Returns:
+        list: A list of technique collected from the CISA report url.
+    """
     response = requests.get(url)
+    filtered_strings = []
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
-
-        regex_pattern = r'T\d{4}\.*\d*'  
-        filtered_strings = [tag.string for tag in soup.find_all(string=re.compile(regex_pattern)) if tag.string]
-
+        all_tables = soup.find_all('table', {'class': 'Table'})
+        regex_pattern = re.compile(r'T\d{4}\.*\d*')
+        for table in all_tables: 
+            matched_elements = list (table.find_all(string=regex_pattern))
+            if len(matched_elements) >0 and len(filtered_strings)>0: 
+                print ('WARNING: Extracting Techniques from more than one table. Check the url.')
+                return
+            if len(matched_elements) >0: filtered_strings.extend(matched_elements)
     else:
         print('Failed to fetch the webpage.')
         return
-    unique_items = []
-    seen = set()
-
-    for item in filtered_strings:
-        if item not in seen:
-            unique_items.append(item)
-            seen.add(item)
-    if sort_mode == 'earliest':
-        interacted_techniques = unique_items
-        interacted_table = look_up_table[look_up_table['technique_ID'].isin(interacted_techniques)]
-        sorted_table= interacted_table.sort_values (by = 'technique_earliest_stage', ascending=True)
-        unique_items = list(sorted_table['technique_ID'].values )
-    return unique_items
+    return filtered_strings
 
 def build_new_group_profile (processed_group_features: pd.DataFrame(), label_df: pd.DataFrame(), new_group_id: str, settings: dict):
     """Build features for a new groups, including:
