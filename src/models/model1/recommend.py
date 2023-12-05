@@ -255,6 +255,7 @@ def get_report_data (report_codes: list):
         'interacted_techniques': interacted_techniques
     }
     report_data = pd.DataFrame (data=data)
+    report_data['interacted_techniques'] = report_data['interacted_techniques'].apply (lambda x: [str(i) for i in x])
     return report_data
 
 def make_test_data (report_data: pd.DataFrame, look_up_table: pd.DataFrame(), n: int = 200, mode: str = 'latest'):
