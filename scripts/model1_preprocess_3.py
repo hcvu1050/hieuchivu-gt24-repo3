@@ -23,7 +23,7 @@ from src.models.model1.model_preprocess import get_data, split_by_group, label_r
 from src.data.select_features import select_features
 from src.data.cleaning_4 import _limit_samples_based_on_earliest_stage, _limit_samples_based_on_group_interaction
 from src.data.limit_cardinality import batch_reduce_vals_based_on_nth_most_frequent, batch_reduce_vals_based_on_percentage
-from src.data.build_features_3 import build_feature_interaction_frequency, build_feature_used_tactics
+from src.data.build_features_3 import build_technique_interaction_rate, build_feature_used_tactics
 from src.data.make_vocab import make_vocab
 from src.constants import *
 from src.data.utils import batch_save_df_to_csv, batch_save_df_to_pkl
@@ -128,13 +128,13 @@ def main():
     
     #### 👉 3c- Build addtional features 
     ### 3c.1 technique interaction frequency: ONLY calculate the interactions from the TRAIN data
-    technique_features_df = build_feature_interaction_frequency (label_df= train_y_df, 
+    technique_features_df = build_technique_interaction_rate (train_label_df= train_y_df, 
                                                                  feature_df= technique_features_df, 
                                                                  object_ID= 'technique_ID', 
                                                                  feature_name = 'input_technique_interaction_rate', initialize_null_interaction= initialize_technique_interaction)
     
     ### 3c.2 group interaction frequency: DON't have to separate TRAIN data
-    group_features_df = build_feature_interaction_frequency (label_df= labels_df, feature_df= group_features_df, object_ID= 'group_ID', feature_name = 'input_group_interaction_rate')
+    group_features_df = build_technique_interaction_rate (train_label_df= labels_df, feature_df= group_features_df, object_ID= 'group_ID', feature_name = 'input_group_interaction_rate')
     
     #### 3c.3 group used tactics: DON'T have to separate TRAIN data
     group_features_df = build_feature_used_tactics (label_df= labels_df, group_df= group_features_df, technique_df= technique_features_df, feature_name= 'input_group_tactics')

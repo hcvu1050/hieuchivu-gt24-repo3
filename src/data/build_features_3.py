@@ -178,13 +178,18 @@ def build_feature_sentence_embed (df: pd.DataFrame(), feature_name:str, tokenize
     df[feature_name] = df[feature_name].apply(embed_sentence)
     return df
 
-def build_feature_interaction_frequency (label_df: pd.DataFrame(), 
+def build_technique_interaction_rate (train_label_df: pd.DataFrame(), 
                                          feature_df: pd.DataFrame(), 
                                          object_ID: str, 
                                          feature_name: str, normalize: bool = True,
                                          initialize_null_interaction: list = None) -> pd.DataFrame():
-    """Add a feature created by the number of interactions each Technique or Group was involved\n
-    CAUTION: be aware of data leakage.
+    """Add a feature created by the number of interactions each Technique was involved\n
+    CAUTION: be aware of data leakage, only calculate interaction rate and normalize on train data.\n
+    Steps:\n
+    1. Get the interaction counts from  `train_label_df`\n
+    2. Fit a standard scaler to the (train) interaction counts in step 1\n
+    3. Initialize interaction counts for Techniques that are not interacted in the `train_label_df`. Either with 0, global average value, or average (or min) value of the same tactic(s)\n
+    4. Normalize the interaction counts witht the scaler in step 2
 
     Args:
         label_df (pd.DataFrame): interation table
@@ -196,9 +201,11 @@ def build_feature_interaction_frequency (label_df: pd.DataFrame(),
     Returns:
         pd.DataFrame: return the feature table with the added feature column
     """
-    interaction_count = label_df[label_df['label'] == 1.0][object_ID].value_counts()
+    interaction_count = train_label_df[train_label_df['label'] == 1.0][object_ID].value_counts()
     res_df = pd.merge (left = feature_df, right = interaction_count, on = object_ID, how = 'left')
     res_df.rename (columns= {'count': feature_name}, inplace= True)
+    scaler = StandardScaler ()
+    scaler.fit (res_df[feature_name].dropna().values.reshape(-1,1))
     initial_value = 0
     if initialize_null_interaction is not None:
         if initialize_null_interaction[0] == 'global': 
@@ -209,7 +216,7 @@ def build_feature_interaction_frequency (label_df: pd.DataFrame(),
                 
         elif initialize_null_interaction[0] == 'tactics':
             ### 1. Get the list of unused Techniques
-            pos_y = label_df[label_df['label'] == 1]
+            pos_y = train_label_df[train_label_df['label'] == 1]
             used_techniques=  pos_y['technique_ID'].unique()
             all_techniques = res_df['technique_ID'].unique()
             unused_techniques = [t for t in all_techniques if t not in used_techniques]
@@ -233,17 +240,16 @@ def build_feature_interaction_frequency (label_df: pd.DataFrame(),
             for index, row in unused_techniques.iterrows():
                 id_val = row['technique_ID']
                 updated_val = row['input_technique_interaction_rate']
-                
                 # Locate the corresponding row in df_main and update the value
                 res_df.loc[res_df['technique_ID'] == id_val, 'input_technique_interaction_rate'] = updated_val
         
     elif initialize_null_interaction is None: 
         initial_value = 0
     res_df[feature_name].fillna (initial_value, inplace= True)
-
+    
     if normalize: 
-        scaler = StandardScaler()
-        res_df[feature_name] = scaler.fit_transform (res_df[[feature_name]])
+        column_values = res_df[feature_name].values.reshape(-1, 1)
+        res_df[feature_name] = scaler.transform (column_values)
     return res_df
 
 def build_feature_used_tactics (label_df: pd.DataFrame(), 

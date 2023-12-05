@@ -23,7 +23,7 @@ from src.models.model1.model_preprocess import get_data, split_by_group, label_r
 from src.data.select_features import select_features
 from src.data.cleaning_4 import _limit_samples_based_on_earliest_stage, _limit_samples_based_on_group_interaction
 from src.data.limit_cardinality import batch_reduce_vals_based_on_nth_most_frequent, batch_reduce_vals_based_on_percentage
-from src.data.build_features_3 import build_feature_interaction_frequency, build_feature_used_tactics
+from src.data.build_features_3 import build_technique_interaction_rate, build_feature_used_tactics
 from src.data.make_vocab import make_vocab
 from src.constants import *
 from src.data.utils import batch_save_df_to_csv
@@ -116,8 +116,8 @@ def main():
     group_features_df.to_pickle ('tmp_m1pp_group_org.pkl')
     
     #### 3b- Build addtional features features
-    technique_features_df = build_feature_interaction_frequency (label_df= train_y_df, feature_df= technique_features_df, object_ID= 'technique_ID', feature_name = 'input_technique_interaction_rate')
-    group_features_df = build_feature_interaction_frequency (label_df= train_y_df, feature_df= group_features_df, object_ID= 'group_ID', feature_name = 'input_group_interaction_rate')
+    technique_features_df = build_technique_interaction_rate (train_label_df= train_y_df, feature_df= technique_features_df, object_ID= 'technique_ID', feature_name = 'input_technique_interaction_rate')
+    group_features_df = build_technique_interaction_rate (train_label_df= train_y_df, feature_df= group_features_df, object_ID= 'group_ID', feature_name = 'input_group_interaction_rate')
     group_features_df = build_feature_used_tactics (label_df= train_y_df, group_df= group_features_df, technique_df= technique_features_df, feature_name= 'input_group_tactics')
     
     #### 👉3c- limit feature cardinality
