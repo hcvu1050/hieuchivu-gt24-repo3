@@ -115,7 +115,6 @@ def main():
                    metrics = [tf.keras.metrics.AUC(curve = 'PR', from_logits= True, name = 'auc-pr')],
                    )
     
-    
     early_stopping = tf.keras.callbacks.EarlyStopping (
         verbose = 1,
         monitor = 'val_auc-pr',
