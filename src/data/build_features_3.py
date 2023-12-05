@@ -252,6 +252,37 @@ def build_technique_interaction_rate (train_label_df: pd.DataFrame(),
         res_df[feature_name] = scaler.transform (column_values)
     return res_df
 
+def build_group_interaction_rate (train_label_df: pd.DataFrame(), 
+                                  all_label_df: pd.DataFrame(),
+                                    feature_df: pd.DataFrame(), 
+                                    object_ID: str, 
+                                    feature_name: str, normalize: bool = True,
+                                    ) -> pd.DataFrame():
+    """Build group interaction rate as group feature. 
+    If the values are normalized: the stats (mean, mean, standard deviation) are calculated from the Train data only to avoid data leakage.
+    """
+    #### Build group interaction rate as group features
+    ### 1. remove groups that are not in all_label_df (not used in neither train set nor cv set)
+    pos_labels = all_label_df[all_label_df['label'] == 1.0]
+    selected_groups = pos_labels[object_ID].unique()
+    res_df = feature_df[feature_df[object_ID].isin(selected_groups)]
+
+    ### 2. fit scaler on train_labels
+    train_interaction_count = train_label_df[train_label_df['label'] == 1.0][object_ID].value_counts()
+    scaler = StandardScaler ()
+    scaler.fit (train_interaction_count.values.reshape (-1,1))
+    
+    ### 3. calculate interaction count for all groups
+    all_interaction_count = all_label_df[all_label_df['label'] == 1.0][object_ID].value_counts()
+    res_df = pd.merge (left = res_df, right = all_interaction_count, on = object_ID, how = 'left')
+    res_df.rename (columns= {'count': feature_name}, inplace= True)
+    
+    #### 4. Normalize the interaction count
+    if normalize: 
+        column_values = res_df[feature_name].values.reshape(-1, 1)
+        res_df[feature_name] = scaler.transform (column_values)
+    return res_df
+
 def build_feature_used_tactics (label_df: pd.DataFrame(), 
                                 group_df: pd.DataFrame(), 
                                 technique_df: pd.DataFrame(),
