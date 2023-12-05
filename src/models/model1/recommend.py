@@ -120,8 +120,6 @@ def extract_technique_branch (model_name: str):
     )
     return sub_model
 
-
-
 def build_technique_dataset (X_technique_df: pd.DataFrame()):
     X_technique_df = X_technique_df.drop (columns= TECHNIQUE_ID_NAME)
     input_dict = dict()
@@ -279,7 +277,6 @@ def build_new_group_profile (processed_group_features: pd.DataFrame(), label_df:
     most_frequent_software.remove('other')
     most_frequent_software.remove('')
     initial_software = [most_frequent_software[0:avg_software_interaction_rate]]
-    
     
     values = {
         'group_ID': new_group_id,
