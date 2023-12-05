@@ -222,7 +222,6 @@ def build_feature_interaction_frequency (label_df: pd.DataFrame(),
             elif initialize_null_interaction[1] == 'min':
                 tactic_interaction_rate = tactic_interaction_rate.groupby (by= 'input_technique_tactics', as_index= False)['input_technique_interaction_rate'].min()
                 
-            
             ### 3. Make a table that assign new values for the unused techniques
             unused_techniques = res_df[res_df['technique_ID'].isin(unused_techniques)]
             unused_techniques = unused_techniques[['technique_ID', 'input_technique_tactics']]
