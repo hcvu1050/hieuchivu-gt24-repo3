@@ -189,6 +189,33 @@ def get_interacted_tactic_range (interacted_techniques: list, look_up_table: pd.
     latest_stage = interacted_table['technique_earliest_stage'].max()
     
     return (earliest_stage, latest_stage)
+        
+def extract_cisa_techniques (url: str) -> list:
+    """Extract the techniques used by an advesary in a CISA Report url by web scraping.\n
+    The techniques are assumed to be stored in a `<table>` class and sorted by the report.
+
+    Args:
+        url (str): Url of the CISA report
+
+    Returns:
+        list: A list of technique collected from the CISA report url.
+    """
+    response = requests.get(url)
+    filtered_strings = []
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        all_tables = soup.find_all('table')
+        regex_pattern = re.compile(r'T\d{4}\.*\d*')
+        for table in all_tables: 
+            matched_elements = list (table.find_all(string=regex_pattern))
+            if len(matched_elements) >0 and len(filtered_strings)>0: 
+                print ('WARNING: Extracting Techniques from more than one table. Check the url.')
+                return
+            if len(matched_elements) >0: filtered_strings.extend(matched_elements)
+    else:
+        print('Failed to fetch the webpage.')
+        return
+    return filtered_strings
 
 def get_cadidate_techniques (interacted_techniques: list,  look_up_table: pd.DataFrame(), n: int, mode: str = 'latest'):
     """From a list of interacted techniques: Returns a list of candidate techniques. \n
@@ -210,33 +237,63 @@ def get_cadidate_techniques (interacted_techniques: list,  look_up_table: pd.Dat
     elif mode == 'earliest':
         candidate_techniques = list (candidate_table[candidate_table['technique_latest_stage'] >= earliest_interacted_stage]['technique_ID'].values)
     return candidate_techniques
-        
-def extract_cisa_techniques (url: str) -> list:
-    """Extract the techniques used by an advesary in a CISA Report url by web scraping.\n
-    The techniques are assumed to be stored in a `<table>` class and sorted by the report.
+
+def get_report_data (report_codes: list):
+    """get the a Table of interacted techniques in each CISA report given the list of report codes.
+    Args:
+        report_codes (list): the list of report codes. code example 'aa22-277a'
+
+    """
+    group_IDs = []
+    interacted_techniques = []
+    for report_code in report_codes:
+        url = 'https://www.cisa.gov/news-events/cybersecurity-advisories/' + report_code
+        group_IDs.append(report_code)
+        interacted_techniques.append (extract_cisa_techniques (url))
+    data = {
+        'group_ID': group_IDs,
+        'interacted_techniques': interacted_techniques
+    }
+    report_data = pd.DataFrame (data=data)
+    return report_data
+
+def make_test_data (report_data: pd.DataFrame, look_up_table: pd.DataFrame(), n: int = 200, mode: str = 'latest'):
+    """From the CISA report data, make data for testing. Method:\n
+    1. For each report, iteratively take from interacted Techniques as "detected techniques" and the rest as "true subsequent techniques".\n
+    2. For each list of "detected techniques", get the candidate Techniques from the provided look-up table
 
     Args:
-        url (str): Url of the CISA report
+        report_data (pd.DataFrame): CiSA report data
+        look_up_table (pd.DataFrame): look-up table created from a model
+        n (int, optional): number of most similar Technique for each detected techniques. Defaults to 200.
+        mode (str, optional): filter mode for look-up table. Defaults to 'latest'.
 
     Returns:
-        list: A list of technique collected from the CISA report url.
+        _type_: _description_
     """
-    response = requests.get(url)
-    filtered_strings = []
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.content, 'html.parser')
-        all_tables = soup.find_all('table', {'class': 'Table'})
-        regex_pattern = re.compile(r'T\d{4}\.*\d*')
-        for table in all_tables: 
-            matched_elements = list (table.find_all(string=regex_pattern))
-            if len(matched_elements) >0 and len(filtered_strings)>0: 
-                print ('WARNING: Extracting Techniques from more than one table. Check the url.')
-                return
-            if len(matched_elements) >0: filtered_strings.extend(matched_elements)
-    else:
-        print('Failed to fetch the webpage.')
-        return
-    return filtered_strings
+    test_group_IDs = []
+    test_detected_techniques = []
+    test_true_subsequent_techniques = []
+    test_candidate_techniques = []
+    for _, row in report_data.iterrows():
+        group_ID = row['group_ID']
+        for i in range (len (row['interacted_techniques'])-1):
+            detected_techniques = row['interacted_techniques'][0:i+1]
+            true_subsequent_techniques_techniques = row['interacted_techniques'][i+1:]
+            candidate_techniques = get_cadidate_techniques (interacted_techniques = detected_techniques, look_up_table=look_up_table, n = n, mode = mode)
+            
+            test_group_IDs.append (group_ID)
+            test_detected_techniques.append (detected_techniques)
+            test_true_subsequent_techniques.append (true_subsequent_techniques_techniques)
+            test_candidate_techniques.append (candidate_techniques)
+    data = {
+        'group_ID': test_group_IDs,
+        'detected_techniques': test_detected_techniques,
+        'candidate_techniques': test_candidate_techniques,
+        'true_subsequent_techniques': test_true_subsequent_techniques,
+    }
+    res_df = pd.DataFrame(data = data)
+    return res_df
 
 def build_new_group_profile (processed_group_features: pd.DataFrame(), label_df: pd.DataFrame(), new_group_id: str, settings: dict):
     """Build features for a new groups, including:
