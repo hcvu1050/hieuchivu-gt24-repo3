@@ -22,7 +22,7 @@ def main():
         
     formatted_text = yaml.dump(config, default_flow_style=False, indent=2, sort_keys=False)
     print ('---Config for test data\n',formatted_text)
-    
+    n = config ['n']
     report_codes = config['report_codes']
     look_up_table_name = config['look_up_table']
     look_up_table_name += '.pkl'
@@ -30,7 +30,7 @@ def main():
     look_up_table = pd.read_pickle (os.path.join(ROOT_FOLDER, 'data/lookup_tables', look_up_table_name))
     
     report_data = get_report_data (report_codes = report_codes)
-    test_data = make_test_data (report_data = report_data, look_up_table= look_up_table)
+    test_data = make_test_data (n = n, report_data = report_data, look_up_table= look_up_table)
     
     data = {
         'report_data': report_data,
