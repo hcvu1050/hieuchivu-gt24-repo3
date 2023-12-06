@@ -328,6 +328,12 @@ def build_detected_group_profile (processed_group_features: pd.DataFrame(),
     ### 👉 group description equals to to average pooling of all group description embeddings this value is kept the same no matter the threshold
     group_description = interacted_group_features['input_group_description'].apply(pd.Series).mean().tolist()
     
+    avg_software_interaction_rate = interacted_group_features['input_group_software_id'].apply(len).mean().round().astype(int)
+    most_frequent_software = interacted_group_features['input_group_software_id'].explode().value_counts().sort_values(ascending = False)
+    most_frequent_software = list(most_frequent_software.index)
+    most_frequent_software.remove('other')
+    most_frequent_software.remove('')
+    
     group_interaction_rate = 0
     group_interacted_tactics = [[]]
     group_software =  [[]]
@@ -343,11 +349,6 @@ def build_detected_group_profile (processed_group_features: pd.DataFrame(),
         rounded_avg_tactic_rate = avg_tactic_rate.round().astype(int)
         group_interacted_tactics = [[idx for idx, val in rounded_avg_tactic_rate.items() for _ in range(val)]]
     
-        avg_software_interaction_rate = interacted_group_features['input_group_software_id'].apply(len).mean().round().astype(int)
-        most_frequent_software = interacted_group_features['input_group_software_id'].explode().value_counts().sort_values(ascending = False)
-        most_frequent_software = list(most_frequent_software.index)
-        most_frequent_software.remove('other')
-        most_frequent_software.remove('')
         group_software = [most_frequent_software[0:avg_software_interaction_rate]]
     
     elif group_interaction_count >= threshold:
@@ -355,8 +356,9 @@ def build_detected_group_profile (processed_group_features: pd.DataFrame(),
         group_interaction_rate = group_interaction_rate[0][0]
         
         detected_techniques_features = processed_technique_features[processed_technique_features['technique_ID'].isin (detected_techniques)]
-        
         group_interacted_tactics = [list (detected_techniques_features['input_technique_tactics'].explode().values)]
+        possible_software = detected_techniques_features['input_technique_software_id'].explode().unique()
+        possible_software = [software for software in possible_software if software in most_frequent_software[0:avg_software_interaction_rate]]
         group_software = [list (detected_techniques_features['input_technique_software_id'].explode().unique())]
     
     values = {
