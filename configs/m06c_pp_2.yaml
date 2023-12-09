@@ -44,5 +44,5 @@ initialize_technique_interaction:
   - 'min'
 
 resampling: 
-  oversample: 0.1
+  oversample: 0.2
   undersample: ~

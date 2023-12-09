@@ -75,7 +75,8 @@ def main():
     train_size, train_cv_size, cv_size, test_size = data_split
     
     #### 👉1- LOAD DATA
-    group_features_df, technique_features_df, labels_df = get_data(data_type = 'pkl')
+    group_features_df, technique_features_df, org_labels_df = get_data(data_type = 'pkl')
+    labels_df = org_labels_df.copy()
     tactics_order = pd.read_csv ('../data/raw/tactics_order.csv', index_col=0)
     #### 👉1b - (OPT) LIMIT SAMPLES
     if limit_samples_based_on_earliest_stage:
@@ -84,15 +85,20 @@ def main():
             tactics_order_df= tactics_order,
             labels_df= labels_df
         )
-    
+    train_edge_groups = []
     if limit_samples_based_on_group_interaction is not None: 
-        labels_df = _limit_samples_based_on_group_interaction (
+        labels_df, train_edge_groups = _limit_samples_based_on_group_interaction (
             labels_df= labels_df, min_instances= limit_samples_based_on_group_interaction
         )
     
     #### 👉2- SPLIT LABELS
     print ('--splitting data')
+    print (train_edge_groups)
     train_y_df, remain_y_df  = split_by_group (labels_df, ratio = train_size)
+    ## add the positive_cases of the remaining groups back to train data
+    train_edge_groups_df = org_labels_df[(org_labels_df['label']==1) & (org_labels_df['group_ID'].isin (train_edge_groups))]
+    train_y_df = pd.concat ([train_y_df, train_edge_groups_df])
+    
     train_cv_y_df, remain_y_df = split_by_group (remain_y_df, 
                                                  ratio = train_cv_size/ (train_cv_size + cv_size + test_size))
     cv_y_df, test_y_df = split_by_group (remain_y_df, 
@@ -128,13 +134,13 @@ def main():
     
     #### 👉 3c- Build addtional features 
     ### 3c.1 technique interaction frequency: ONLY calculate the interactions from the TRAIN data
-    technique_features_df = build_technique_interaction_rate (train_label_df= train_y_df, 
+    technique_features_df = build_technique_interaction_rate (train_label_df= train_y_df,
                                                                  feature_df= technique_features_df, 
                                                                  object_ID= 'technique_ID', 
                                                                  feature_name = 'input_technique_interaction_rate', initialize_null_interaction= initialize_technique_interaction)
     
     ### 3c.2 group interaction frequency: remove the groups that are not use for training and validation. Normalize the interaction rates on the train data
-    group_features_df = build_group_interaction_rate (train_label_df= train_y_df, 
+    group_features_df = build_group_interaction_rate (train_label_df= train_y_df, edge_cases= train_edge_groups,
                                                           all_label_df= labels_df,
                                                           feature_df= group_features_df, object_ID= 'group_ID', feature_name = 'input_group_interaction_rate')
     
@@ -146,6 +152,15 @@ def main():
     #### 👉Make vocab
     make_vocab(group_features_df, [feature for feature in selected_group_features if feature not in ['input_group_description']], path = TARGET_PATH)
     make_vocab (technique_features_df, [feature for feature in selected_technique_features if feature not in ['input_technique_description']], path = TARGET_PATH)
+    
+    ### export for recommendation phase / unit test
+    dfs = {
+        'technnique_features': technique_features_df,
+        'group_features': group_features_df,
+        'train_labels': train_y_df,
+        'cv_labels': cv_y_df,
+    }
+    batch_save_df_to_pkl (dfs, TARGET_PATH, prefix = 'processed')
     
     #### - (OPTIONAL) OVERSAMPLING train and train_cv, if train_cv size is set to 0, return an empty dataframe
     if resampling is not None: 
@@ -161,14 +176,6 @@ def main():
         }
         batch_save_df_to_csv (dfs, TARGET_PATH, postfix='resampled')
     
-    ### export for recommendation phase / unit test
-    dfs = {
-        'technnique_features': technique_features_df,
-        'group_features': group_features_df,
-        'train_labels': train_y_df,
-        'cv_labels': cv_y_df,
-    }
-    batch_save_df_to_pkl (dfs, TARGET_PATH, prefix = 'processed')
     
     #### 4- ALIGNING features to labels
     ## train set

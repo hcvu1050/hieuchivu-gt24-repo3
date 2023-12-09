@@ -329,8 +329,10 @@ def _limit_samples_based_on_earliest_stage (technique_tactics_df: pd.DataFrame()
     return labels_df
 
 def _limit_samples_based_on_group_interaction(labels_df: pd.DataFrame(), min_instances: int):
+    """remove the groups in `labels_df` if the number of positive interactions of each groups is lower than the threshold"""
     # get the positive interaction count for each group
-    filtered_groups = labels_df[labels_df[LABEL_NAME] == 1][GROUP_ID_NAME].value_counts()
-    filtered_groups = list(filtered_groups[filtered_groups >= min_instances].index)
-    labels_df = labels_df[labels_df['group_ID'].isin (filtered_groups)]
-    return labels_df
+    group_pos_interaction = labels_df[labels_df[LABEL_NAME] == 1][GROUP_ID_NAME].value_counts()
+    selected_groups = list(group_pos_interaction[group_pos_interaction >= min_instances].index)
+    remaining_groups = list(group_pos_interaction[group_pos_interaction < min_instances].index)
+    labels_df = labels_df[labels_df['group_ID'].isin (selected_groups)]
+    return labels_df, remaining_groups
