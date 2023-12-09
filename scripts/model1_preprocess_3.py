@@ -26,7 +26,7 @@ from src.data.limit_cardinality import batch_reduce_vals_based_on_nth_most_frequ
 from src.data.build_features_3 import build_technique_interaction_rate, build_feature_used_tactics, build_group_interaction_rate
 from src.data.make_vocab import make_vocab
 from src.constants import *
-from src.data.utils import batch_save_df_to_csv, batch_save_df_to_pkl
+from src.data.utils import batch_save_df_to_csv, batch_save_df_to_pkl, script_log
 
 ROOT_FOLDER = os.path.dirname(os.path.dirname(os.path.abspath('__file__')))
 CONFIG_FOLDER = os.path.join (ROOT_FOLDER, 'configs')
@@ -93,7 +93,6 @@ def main():
     
     #### 👉2- SPLIT LABELS
     print ('--splitting data')
-    print (train_edge_groups)
     train_y_df, remain_y_df  = split_by_group (labels_df, ratio = train_size)
     ## add the positive_cases of the remaining groups back to train data
     train_edge_groups_df = org_labels_df[(org_labels_df['label']==1) & (org_labels_df['group_ID'].isin (train_edge_groups))]
@@ -249,5 +248,6 @@ def main():
     save_dataset (cv_dataset, TARGET_PATH, CV_DATASET_FILENAME)
     if test_size != 0: 
         save_dataset (test_dataset, TARGET_PATH, TEST_DATASET_FILENAME)
+    script_log (os.path.basename(__file__), config=config, args= args)
 if __name__ == '__main__':
     main()

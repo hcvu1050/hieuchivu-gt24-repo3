@@ -1,10 +1,13 @@
-import os
+import os,sys, yaml
+from datetime import datetime
 import pandas as pd
+sys.path.append ('..')
+from src.constants import SCRIPT_LOGS_FILENAME
 # Get the root directory of the project
-FILE_DIR = os.path.dirname(os.path.dirname(os.path.abspath('__file__')))
+ROOT_FOLDER = os.path.dirname(os.path.dirname(os.path.abspath('__file__')))
 # path to get collected data
-TARGET_PATH = os.path.join (FILE_DIR, 'data/interim')
-
+TARGET_PATH = os.path.join (ROOT_FOLDER, 'data/interim')
+SCRIPT_PATH = os.path.join (ROOT_FOLDER, 'scripts', SCRIPT_LOGS_FILENAME)
 def _make_file_list (filename: str, target_path, content: list):
     """
     create a .txt file containing a list of file names stored in `content`
@@ -129,3 +132,25 @@ def batch_save_df_to_csv_with_index (file_name_dfs: dict, target_path, prefix ='
     if output_list_file is not None:
         # make a txt file containing the names of exported file
         _make_file_list (filename = output_list_file, target_path=target_path, content=content)
+
+def script_log (script_name:str, config:dict = None, args: dict = None):
+    with open(SCRIPT_LOGS_FILENAME, 'r') as file:
+        existing_content = file.read()
+    
+    current_datetime = datetime.now()
+    formatted_datetime = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
+    config_line = ''
+    args_line = ''
+    if config != None: 
+        config_line = yaml.dump(config, default_flow_style=False, indent=2, sort_keys=False)
+    if args != None: 
+        args_line = yaml.dump(vars(args), default_flow_style=False, indent=2, sort_keys=False)
+    new_lines = [
+        "======={_time} : {script_name}=======".format (_time = formatted_datetime, script_name = script_name),
+        "{args_line}".format(args_line = args_line),
+        "{config_line}".format(config_line = config_line),
+    ]
+    updated_content = '\n'.join(new_lines) + '\n' + existing_content
+    with open(SCRIPT_LOGS_FILENAME, 'w') as file:
+        file.write(updated_content)
+    
