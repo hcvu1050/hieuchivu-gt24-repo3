@@ -12,7 +12,7 @@ import sys, os, argparse, yaml
 from transformers import BertTokenizer, TFBertModel
 sys.path.append("..")
 ### MODULES
-from src.data.utils import  batch_save_df_to_pkl
+from src.data.utils import  batch_save_df_to_pkl, script_log
 from src.data.ingestion_2 import collect_data
 from src.data.cleaning_4 import clean_data
 from src.data.build_features_3 import build_feature_sentence_embed
@@ -68,6 +68,8 @@ def main():
     print ('---Shapes:')
     for df in dfs.keys():
         print ('{df}: {shape}'.format(df = df, shape = dfs[df].shape))
+    
+    script_log (os.path.basename(__file__), config=config, args= args)  
     
 if __name__ == '__main__':
     main()

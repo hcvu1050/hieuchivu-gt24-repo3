@@ -140,11 +140,11 @@ def main():
     
     ### 3c.2 group interaction frequency: remove the groups that are not use for training and validation. Normalize the interaction rates on the train data
     group_features_df = build_group_interaction_rate (train_label_df= train_y_df, edge_cases= train_edge_groups,
-                                                          all_label_df= labels_df,
+                                                          all_label_df= org_labels_df,
                                                           feature_df= group_features_df, object_ID= 'group_ID', feature_name = 'input_group_interaction_rate')
     
     #### 3c.3 group used tactics: DON'T have to separate TRAIN data
-    group_features_df = build_feature_used_tactics (label_df= labels_df, group_df= group_features_df, technique_df= technique_features_df, feature_name= 'input_group_tactics')
+    group_features_df = build_feature_used_tactics (label_df= org_labels_df, group_df= group_features_df, technique_df= technique_features_df, feature_name= 'input_group_tactics')
     #### ❗extra ragged feature, will be added to selected_group_features
     selected_group_features = selected_group_features + ['input_group_tactics']
         

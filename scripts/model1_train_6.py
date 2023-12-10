@@ -19,7 +19,7 @@ REPORT_FOLDER = os.path.join (ROOT_FOLDER, 'reports', 'model1')
 TRAINED_MODELS_FOLDER = os.path.join (ROOT_FOLDER, 'trained_models', 'model1')
 SOURCE_PATH = os.path.join (ROOT_FOLDER, 'data/processed/model1')
 from src.models.model1.dataloader import load_datasets_2
-from src.models.model1.model_v0_6c import Model1
+from src.models.model1.model_v0_6d import Model1
 from src.data.utils import script_log
 def main():
     #### PARSING ARGS
