@@ -63,6 +63,7 @@ def main():
     ## READING CONFIG
     limit_samples_based_on_earliest_stage = config ['limit_samples_based_on_earliest_stage']
     limit_samples_based_on_group_interaction = config ['limit_samples_based_on_group_interaction']
+    include_edge_samples = config ['include_edge_samples']
     limit_cardinality = config['limit_cardinality']
     
     data_split = config['data_split']
@@ -95,8 +96,9 @@ def main():
     print ('--splitting data')
     train_y_df, remain_y_df  = split_by_group (labels_df, ratio = train_size)
     ## add the positive_cases of the remaining groups back to train data
-    train_edge_groups_df = org_labels_df[(org_labels_df['label']==1) & (org_labels_df['group_ID'].isin (train_edge_groups))]
-    train_y_df = pd.concat ([train_y_df, train_edge_groups_df])
+    if include_edge_samples: 
+        train_edge_groups_df = org_labels_df[(org_labels_df['label']==1) & (org_labels_df['group_ID'].isin (train_edge_groups))]
+        train_y_df = pd.concat ([train_y_df, train_edge_groups_df])
     
     train_cv_y_df, remain_y_df = split_by_group (remain_y_df, 
                                                  ratio = train_cv_size/ (train_cv_size + cv_size + test_size))

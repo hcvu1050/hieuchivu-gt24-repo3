@@ -39,6 +39,7 @@ limit_technique_features:
   input_technique_software_id: 0.7
   # input_technique_tactics: ~
 
+include_edge_samples: False
 initialize_technique_interaction: 
   - 'tactics'
   - 'min'
