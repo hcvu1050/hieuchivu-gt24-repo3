@@ -16,7 +16,7 @@ import sys, os, yaml, argparse
 import pandas as pd
 sys.path.append("..")
 
-from src.models.model1.model_preprocess import get_data, split_by_group, label_resample, align_input_to_labels, build_dataset_2, save_dataset
+from src.models.model1.model_preprocess import get_data, split_by_group_2, label_resample, align_input_to_labels, build_dataset_2, save_dataset
 from src.constants import TRAIN_DATASET_FILENAME, TRAIN_CV_DATASET_FILENAME, CV_DATASET_FILENAME, TEST_DATASET_FILENAME
 from src.data.utils import batch_save_df_to_csv
 
@@ -61,10 +61,10 @@ def main():
     
     #### 2- SPLIT LABELS
     print ('--splitting data')
-    train_y_df, remain_y_df  = split_by_group (labels_df, ratio = train_size)
-    train_cv_y_df, remain_y_df = split_by_group (remain_y_df, 
+    train_y_df, remain_y_df  = split_by_group_2 (labels_df, ratio = train_size)
+    train_cv_y_df, remain_y_df = split_by_group_2 (remain_y_df, 
                                                  ratio = train_cv_size/ (train_cv_size + cv_size + test_size))
-    cv_y_df, test_y_df = split_by_group (remain_y_df, 
+    cv_y_df, test_y_df = split_by_group_2 (remain_y_df, 
                                           ratio = cv_size/(cv_size + test_size))
     if save_intermediary_table:
         dfs = {

@@ -60,10 +60,10 @@ def main():
     
     #### 2- SPLIT LABELS
     print ('--splitting data')
-    train_y_df, remain_y_df  = split_by_group (labels_df, ratio = train_size)
-    train_cv_y_df, remain_y_df = split_by_group (remain_y_df, 
+    train_y_df, remain_y_df  = split_by_group_2 (labels_df, ratio = train_size)
+    train_cv_y_df, remain_y_df = split_by_group_2 (remain_y_df, 
                                                  ratio = train_cv_size/ (train_cv_size + cv_size + test_size))
-    cv_y_df, test_y_df = split_by_group (remain_y_df, 
+    cv_y_df, test_y_df = split_by_group_2 (remain_y_df, 
                                           ratio = cv_size/(cv_size + test_size))
     if save_intermediary_table:
         dfs = {

@@ -44,7 +44,7 @@ def get_data (data_type = 'csv'):
         
     return group_features_df, technique_features_df, labels_df
 
-def split_by_group(labels: pd.DataFrame, ratio: float):
+def split_by_group_2(labels: pd.DataFrame, ratio: float):
     """Splits data by Group randomly so that: data of a Group ONLY belong to a set. 
     Returns two tables, the first table's size is indicated by `ratio`.
     If ratio  == 0: return None, df
