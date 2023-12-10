@@ -44,7 +44,7 @@ def get_data (data_type = 'csv'):
         
     return group_features_df, technique_features_df, labels_df
 
-def split_by_group(df: pd.DataFrame, ratio: float):
+def split_by_group(labels: pd.DataFrame, ratio: float):
     """Splits data by Group randomly so that: data of a Group ONLY belong to a set. 
     Returns two tables, the first table's size is indicated by `ratio`.
     If ratio  == 0: return None, df
@@ -53,20 +53,47 @@ def split_by_group(df: pd.DataFrame, ratio: float):
         `ratio` : the ratio for the first output table.
         `save_as_csv` (list, optional): save the split table as csv files by the names indiacted.
     """
-    group_IDs = df[GROUP_ID_NAME].unique()
+    group_IDs = labels[GROUP_ID_NAME].unique()
     if ratio == 0:
-        return pd.DataFrame(), df
+        return pd.DataFrame(), labels
     if ratio ==1.0: 
-        return df, pd.DataFrame()
+        return labels, pd.DataFrame()
     group_1_IDs, group_2_IDs = train_test_split (group_IDs, 
                                          train_size = ratio, 
                                          random_state= RANDOM_STATE, 
                                          shuffle= True)
-    df_1 = df[df[GROUP_ID_NAME].isin(group_1_IDs)]
-    df_2 = df[df[GROUP_ID_NAME].isin(group_2_IDs)]
+    df_1 = labels[labels[GROUP_ID_NAME].isin(group_1_IDs)]
+    df_2 = labels[labels[GROUP_ID_NAME].isin(group_2_IDs)]
     
     return df_1, df_2
-    
+
+def split_by_group_2 (labels: pd.DataFrame(), ratio: float, step: int = 10):
+    """Splits data by Group randomly with constraint: data of a Group ONLY belong to a set. 
+    Returns two tables, the first table's size is indicated by `ratio`.
+    If ratio  == 0: return None, df
+    Args:
+        `labels_df` (pd.DataFrame): a table that contains the column `GROUP_ID_NAME`
+        `ratio` : the ratio for the first output table.
+        `save_as_csv` (list, optional): save the split table as csv files by the names indiacted.
+    """
+    if ratio == 0:
+        return pd.DataFrame(), labels
+    if ratio ==1.0: 
+        return labels, pd.DataFrame()
+    group_counts = labels[labels['label'] == 1]['group_ID'].value_counts(ascending = False)
+    g_1= []
+    g_2= []
+    sorted_groups = list(group_counts.index)
+    for i in range (0, len(sorted_groups), step):
+        sub_list = sorted_groups[i:i + step]
+        l_1, l_2 = train_test_split (sub_list, train_size = ratio, random_state= RANDOM_STATE, shuffle= True)
+        g_1.extend(l_1)
+        g_2.extend(l_2)
+        
+    df_1 = labels[labels['group_ID'].isin (g_1)]
+    df_2 = labels[labels['group_ID'].isin (g_2)]
+    return df_1, df_2
+
 def label_resample (df: pd.DataFrame, sampling_strategy: dict):
     """
     Resampling the labels by either oversampling or undersampling or both
