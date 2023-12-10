@@ -170,12 +170,10 @@ def main():
         train_y_df = label_resample (train_y_df, sampling_strategy= resampling)
         if train_cv_size != 0:
             train_cv_y_df = label_resample (train_cv_y_df, sampling_strategy= resampling)
-    if save_intermediary_table:
         dfs = {
-            'train_y': train_y_df,
-            'train_cv_y': train_cv_y_df,
+            'train_labels': train_y_df,
         }
-        batch_save_df_to_csv (dfs, TARGET_PATH, postfix='resampled')
+        batch_save_df_to_pkl (dfs, TARGET_PATH, prefix ='resampled')
     
     
     #### 4- ALIGNING features to labels
