@@ -15,28 +15,32 @@ model_architecture:
 
   group_nn_hidden_layer_widths: 
     # - 512
-    - 512
-    - 256
-    - 128
+    # - 512
+    # - 256
+    - 64
+    - 64
     - 64
   group_nn_hidden_layer_depth: ~
   technique_nn_hidden_layer_widths: 
     # - 1024
-    - 1024
-    - 512
-    - 256
+    # - 1024
+    # - 512
+    # - 256
     - 128
     - 64
+    - 64
+    - 64
   technique_nn_hidden_layer_depth: ~
-  nn_output_size: 32
+  nn_output_size: 16
   regularizer: ~
   regularizer_weight: ~
   initializer: he
   embeddings_initializer: he_uniform
-  dropout_rate: 0.4
+  dropout_rate: 0.5
   masking: False
 
 train:
+  gamma: 2
   epochs: 300
   patience: 50
   start_from_epoch: 50
@@ -44,4 +48,4 @@ train:
   batch_size: 32
   class_weights: 
     0: 1.0
-    1: 1.0
+    1: 4.0

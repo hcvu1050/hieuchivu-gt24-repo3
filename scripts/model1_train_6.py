@@ -64,6 +64,9 @@ def main():
     start_from_epoch = train_config['start_from_epoch']
     learning_rate = float (train_config['learning_rate'])
     class_weights = train_config['class_weights']
+    gamma = 2.5
+    if train_config['gamma'] is not None: 
+        gamma = train_config['gamma']
     
     formatted_text = yaml.dump(config, default_flow_style=False, indent=2, sort_keys=False)
     print ('---config for Model1\n',formatted_text)
@@ -109,7 +112,7 @@ def main():
     loss = keras.losses.BinaryFocalCrossentropy (from_logits= True, 
                                                  apply_class_balancing= False,
                                                  alpha = 0.15, 
-                                                 gamma = 2.5 )
+                                                 gamma = gamma )
     model.compile (optimizer, 
                    loss = loss, 
                    metrics = [tf.keras.metrics.AUC(curve = 'PR', from_logits= True, name = 'auc-pr')],

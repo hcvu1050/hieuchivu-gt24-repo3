@@ -1,3 +1,392 @@
+=======2023-12-11 15:08:05 : model1_train_6.py=======
+config: m06d_2_2_b
+ Best val_auc_pr: 0.42486923933029175
+model_architecture:
+  limit_group_features:
+    input_software_id: null
+    input_tactics: null
+  limit_technique_features:
+    input_technique_data_sources: null
+    input_technique_defenses_bypassed: null
+    input_technique_detection_name: null
+    input_technique_mitigation_id: null
+    input_technique_permissions_required: null
+    input_technique_platforms: null
+    input_tactics: null
+    input_software_id: null
+  group_nn_hidden_layer_widths:
+  - 64
+  - 64
+  - 64
+  group_nn_hidden_layer_depth: null
+  technique_nn_hidden_layer_widths:
+  - 128
+  - 64
+  - 64
+  - 64
+  technique_nn_hidden_layer_depth: null
+  nn_output_size: 16
+  regularizer: null
+  regularizer_weight: null
+  initializer: he
+  embeddings_initializer: he_uniform
+  dropout_rate: 0.5
+  masking: false
+train:
+  gamma: 2.5
+  epochs: 300
+  patience: 50
+  start_from_epoch: 50
+  learning_rate: 3e-6
+  batch_size: 32
+  class_weights:
+    0: 1.0
+    1: 4.0
+
+=======2023-12-11 14:46:28 : model1_preprocess_3.py=======
+config: m06d_pp_2
+last_only: 'True'
+
+limit_samples_based_on_earliest_stage: true
+limit_samples_based_on_group_interaction: 10
+data_split:
+- 0.8
+- 0
+- 0.2
+- 0
+selected_group_features:
+- input_group_software_id
+- input_group_description
+selected_technique_features:
+- input_technique_data_sources
+- input_technique_detection_name
+- input_technique_mitigation_id
+- input_technique_platforms
+- input_technique_software_id
+- input_technique_tactics
+- input_technique_description
+limit_cardinality: percentage
+limit_group_features:
+  input_group_software_id: 0.7
+limit_technique_features:
+  input_technique_data_sources: 0.7
+  input_technique_detection_name: 0.7
+  input_technique_mitigation_id: 0.7
+  input_technique_software_id: 0.7
+include_edge_samples: false
+initialize_technique_interaction:
+- tactics
+- min
+resampling:
+  oversample: 0.2
+  undersample: null
+
+=======2023-12-11 14:21:27 : model1_train_6.py=======
+config: m06d_2_2_b
+ Best val_auc_pr: 0.37325814366340637
+model_architecture:
+  limit_group_features:
+    input_software_id: null
+    input_tactics: null
+  limit_technique_features:
+    input_technique_data_sources: null
+    input_technique_defenses_bypassed: null
+    input_technique_detection_name: null
+    input_technique_mitigation_id: null
+    input_technique_permissions_required: null
+    input_technique_platforms: null
+    input_tactics: null
+    input_software_id: null
+  group_nn_hidden_layer_widths:
+  - 64
+  - 64
+  - 64
+  group_nn_hidden_layer_depth: null
+  technique_nn_hidden_layer_widths:
+  - 128
+  - 64
+  - 64
+  - 64
+  technique_nn_hidden_layer_depth: null
+  nn_output_size: 16
+  regularizer: null
+  regularizer_weight: null
+  initializer: he
+  embeddings_initializer: he_uniform
+  dropout_rate: 0.5
+  masking: false
+train:
+  gamma: 2.5
+  epochs: 300
+  patience: 50
+  start_from_epoch: 50
+  learning_rate: 3e-6
+  batch_size: 32
+  class_weights:
+    0: 1.0
+    1: 4.0
+
+=======2023-12-11 13:21:52 : model1_train_6.py=======
+config: m06d_2_2_b
+ Best val_auc_pr: 0.4346853494644165
+model_architecture:
+  limit_group_features:
+    input_software_id: null
+    input_tactics: null
+  limit_technique_features:
+    input_technique_data_sources: null
+    input_technique_defenses_bypassed: null
+    input_technique_detection_name: null
+    input_technique_mitigation_id: null
+    input_technique_permissions_required: null
+    input_technique_platforms: null
+    input_tactics: null
+    input_software_id: null
+  group_nn_hidden_layer_widths:
+  - 64
+  - 64
+  - 64
+  group_nn_hidden_layer_depth: null
+  technique_nn_hidden_layer_widths:
+  - 128
+  - 64
+  - 64
+  - 64
+  technique_nn_hidden_layer_depth: null
+  nn_output_size: 16
+  regularizer: null
+  regularizer_weight: null
+  initializer: he
+  embeddings_initializer: he_uniform
+  dropout_rate: 0.5
+  masking: false
+train:
+  gamma: 2.5
+  epochs: 300
+  patience: 50
+  start_from_epoch: 50
+  learning_rate: 3e-6
+  batch_size: 32
+  class_weights:
+    0: 1.0
+    1: 4.0
+
+=======2023-12-11 12:58:29 : model1_preprocess_3.py=======
+config: m06d_pp_2
+last_only: 'True'
+
+limit_samples_based_on_earliest_stage: true
+limit_samples_based_on_group_interaction: 10
+data_split:
+- 0.8
+- 0
+- 0.2
+- 0
+selected_group_features:
+- input_group_software_id
+- input_group_description
+selected_technique_features:
+- input_technique_data_sources
+- input_technique_detection_name
+- input_technique_mitigation_id
+- input_technique_platforms
+- input_technique_software_id
+- input_technique_tactics
+- input_technique_description
+limit_cardinality: percentage
+limit_group_features:
+  input_group_software_id: 0.7
+limit_technique_features:
+  input_technique_data_sources: 0.7
+  input_technique_detection_name: 0.7
+  input_technique_mitigation_id: 0.7
+  input_technique_software_id: 0.7
+include_edge_samples: false
+initialize_technique_interaction:
+- tactics
+- min
+resampling:
+  oversample: 0.2
+  undersample: null
+
+=======2023-12-11 12:41:34 : model1_train_6.py=======
+config: m06d_1_2_b_3 
+ Best val_auc_pr: 0.4332321584224701
+model_architecture:
+  limit_group_features:
+    input_software_id: null
+    input_tactics: null
+  limit_technique_features:
+    input_technique_data_sources: null
+    input_technique_defenses_bypassed: null
+    input_technique_detection_name: null
+    input_technique_mitigation_id: null
+    input_technique_permissions_required: null
+    input_technique_platforms: null
+    input_tactics: null
+    input_software_id: null
+  group_nn_hidden_layer_widths:
+  - 64
+  - 64
+  - 64
+  group_nn_hidden_layer_depth: null
+  technique_nn_hidden_layer_widths:
+  - 128
+  - 64
+  - 64
+  - 64
+  technique_nn_hidden_layer_depth: null
+  nn_output_size: 16
+  regularizer: null
+  regularizer_weight: null
+  initializer: he
+  embeddings_initializer: he_uniform
+  dropout_rate: 0.5
+  masking: false
+train:
+  gamma: 3
+  epochs: 300
+  patience: 50
+  start_from_epoch: 50
+  learning_rate: 3e-6
+  batch_size: 32
+  class_weights:
+    0: 1.0
+    1: 4.0
+
+=======2023-12-11 12:34:09 : model1_train_6.py=======
+config: m06d_1_2_b_2
+ Best val_auc_pr: 0.4299432039260864
+model_architecture:
+  limit_group_features:
+    input_software_id: null
+    input_tactics: null
+  limit_technique_features:
+    input_technique_data_sources: null
+    input_technique_defenses_bypassed: null
+    input_technique_detection_name: null
+    input_technique_mitigation_id: null
+    input_technique_permissions_required: null
+    input_technique_platforms: null
+    input_tactics: null
+    input_software_id: null
+  group_nn_hidden_layer_widths:
+  - 64
+  - 64
+  - 64
+  group_nn_hidden_layer_depth: null
+  technique_nn_hidden_layer_widths:
+  - 128
+  - 64
+  - 64
+  - 64
+  technique_nn_hidden_layer_depth: null
+  nn_output_size: 16
+  regularizer: null
+  regularizer_weight: null
+  initializer: he
+  embeddings_initializer: he_uniform
+  dropout_rate: 0.5
+  masking: false
+train:
+  gamma: 2
+  epochs: 300
+  patience: 50
+  start_from_epoch: 50
+  learning_rate: 3e-6
+  batch_size: 32
+  class_weights:
+    0: 1.0
+    1: 4.0
+
+=======2023-12-11 12:00:09 : model1_train_6.py=======
+config: m06d_1_2_b_3
+ Best val_auc_pr: 0.4114118814468384
+model_architecture:
+  limit_group_features:
+    input_software_id: null
+    input_tactics: null
+  limit_technique_features:
+    input_technique_data_sources: null
+    input_technique_defenses_bypassed: null
+    input_technique_detection_name: null
+    input_technique_mitigation_id: null
+    input_technique_permissions_required: null
+    input_technique_platforms: null
+    input_tactics: null
+    input_software_id: null
+  group_nn_hidden_layer_widths:
+  - 64
+  - 64
+  - 64
+  group_nn_hidden_layer_depth: null
+  technique_nn_hidden_layer_widths:
+  - 128
+  - 64
+  - 64
+  - 64
+  technique_nn_hidden_layer_depth: null
+  nn_output_size: 16
+  regularizer: null
+  regularizer_weight: null
+  initializer: he
+  embeddings_initializer: he_uniform
+  dropout_rate: 0.5
+  masking: false
+train:
+  epochs: 300
+  patience: 30
+  start_from_epoch: 50
+  learning_rate: 3e-6
+  batch_size: 8
+  class_weights:
+    0: 1.0
+    1: 4.0
+
+=======2023-12-11 11:45:57 : model1_train_6.py=======
+config: m06d_1_2_b_2
+ Best val_auc_pr: 0.4332737922668457
+model_architecture:
+  limit_group_features:
+    input_software_id: null
+    input_tactics: null
+  limit_technique_features:
+    input_technique_data_sources: null
+    input_technique_defenses_bypassed: null
+    input_technique_detection_name: null
+    input_technique_mitigation_id: null
+    input_technique_permissions_required: null
+    input_technique_platforms: null
+    input_tactics: null
+    input_software_id: null
+  group_nn_hidden_layer_widths:
+  - 64
+  - 64
+  - 64
+  group_nn_hidden_layer_depth: null
+  technique_nn_hidden_layer_widths:
+  - 128
+  - 64
+  - 64
+  - 64
+  technique_nn_hidden_layer_depth: null
+  nn_output_size: 16
+  regularizer: null
+  regularizer_weight: null
+  initializer: he
+  embeddings_initializer: he_uniform
+  dropout_rate: 0.5
+  masking: false
+train:
+  epochs: 300
+  patience: 30
+  start_from_epoch: 50
+  learning_rate: 3e-6
+  batch_size: 16
+  class_weights:
+    0: 1.0
+    1: 4.0
+
 =======2023-12-11 11:18:00 : model1_train_6.py=======
 config: m06d_1_2
 Best val_auc_pr : 0.40590882301330566
