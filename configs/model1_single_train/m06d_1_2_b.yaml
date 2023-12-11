@@ -47,4 +47,4 @@ train:
   batch_size: 32
   class_weights: 
     0: 1.0
-    1: 7.0
+    1: 4.0

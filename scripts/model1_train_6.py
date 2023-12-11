@@ -133,6 +133,7 @@ def main():
         class_weight=class_weights,
         callbacks= [early_stopping]
     )
+    best_val_auc_pr = early_stopping.best
     end_time = time.time()
     elapsed_time = end_time - start_time
     elapsed_minutes = int(elapsed_time // 60)
@@ -157,7 +158,8 @@ def main():
     model_file_path = os.path.join (TRAINED_MODELS_FOLDER, model_file_name)
     model.save (model_file_path)
     
-    script_log (os.path.basename(__file__), config=config, args= args)    
+    script_log (os.path.basename(__file__), config=config, args= args, result = best_val_auc_pr)    
+    print (best_val_auc_pr)
 if __name__ == '__main__':
     main()
     

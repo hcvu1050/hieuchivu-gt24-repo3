@@ -41,7 +41,7 @@ model_architecture:
 
 train:
   epochs: 300
-  patience: 50
+  patience: 30
   start_from_epoch: 50
   learning_rate:  3e-6
   batch_size: 32

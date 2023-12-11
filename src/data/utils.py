@@ -133,7 +133,7 @@ def batch_save_df_to_csv_with_index (file_name_dfs: dict, target_path, prefix ='
         # make a txt file containing the names of exported file
         _make_file_list (filename = output_list_file, target_path=target_path, content=content)
 
-def script_log (script_name:str, config:dict = None, args: dict = None):
+def script_log (script_name:str, config:dict = None, args: dict = None, result: float = None):
     with open(SCRIPT_LOGS_FILENAME, 'r') as file:
         existing_content = file.read()
     
@@ -150,6 +150,8 @@ def script_log (script_name:str, config:dict = None, args: dict = None):
         "{args_line}".format(args_line = args_line),
         "{config_line}".format(config_line = config_line),
     ]
+    if result is not None: 
+        new_lines[1] =  "{args_line} Best val_auc_pr: {best_val_auc_pr}".format(args_line = args_line, best_val_auc_pr = result)
     updated_content = '\n'.join(new_lines) + '\n' + existing_content
     with open(SCRIPT_LOGS_FILENAME, 'w') as file:
         file.write(updated_content)
