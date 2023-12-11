@@ -21,6 +21,7 @@ SOURCE_PATH = os.path.join (ROOT_FOLDER, 'data/processed/model1')
 from src.models.model1.dataloader import load_datasets_2
 from src.models.model1.model_v0_6d import Model1
 from src.data.utils import script_log
+from src.constants import *
 def main():
     #### PARSING ARGS
     parser = argparse.ArgumentParser (description= 'command-line arguments when running {}'.format ('__file__'))
@@ -97,7 +98,7 @@ def main():
     train_dataset, cv_dataset = load_datasets_2(empty_train_cv= True, return_feature_info=False)
     
     train_dataset = train_dataset.batch(batch_size)
-    train_dataset = train_dataset.shuffle(buffer_size=len(train_dataset))
+    train_dataset = train_dataset.shuffle(buffer_size=len(train_dataset), seed = RANDOM_STATE)
     train_dataset = train_dataset.prefetch(buffer_size=tf.data.AUTOTUNE)
 
     cv_dataset = cv_dataset.batch(batch_size)
