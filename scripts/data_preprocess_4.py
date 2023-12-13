@@ -52,10 +52,10 @@ def main():
         include_unused_techniques = include_unused_techniques, 
         save_as_csv = save_intermediary_table)
 
-    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-    embed_model = TFBertModel.from_pretrained('bert-base-uncased')
-    group_features = build_feature_sentence_embed (group_features, 'input_group_description', tokenizer, embed_model)
-    technique_features = build_feature_sentence_embed (technique_features, 'input_technique_description', tokenizer, embed_model)
+    # tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    # embed_model = TFBertModel.from_pretrained('bert-base-uncased')
+    # group_features = build_feature_sentence_embed (group_features, 'input_group_description', tokenizer, embed_model)
+    # technique_features = build_feature_sentence_embed (technique_features, 'input_technique_description', tokenizer, embed_model)
     
     # #### LAST STEPS (save the output tables as pkl)
     

@@ -1,7 +1,7 @@
 """
 last update: 2023-10-29
 - Usage: Train a single instance of model1 (script version 5).
-    - Model version 0.6.c
+    - Model version 0.6.d
 - Args: 
     - `-config`:  name of the `yaml` file in `configs/model1/single_train` that will be used to define the hyperparameters for model1
 """
@@ -135,7 +135,8 @@ def main():
         validation_data= cv_dataset,
         epochs=epochs,
         class_weight=class_weights,
-        callbacks= [early_stopping]
+        callbacks= [early_stopping],
+        verbose = 2,
     )
     best_val_auc_pr = early_stopping.best
     end_time = time.time()

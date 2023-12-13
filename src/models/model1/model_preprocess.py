@@ -44,7 +44,7 @@ def get_data (data_type = 'csv'):
         
     return group_features_df, technique_features_df, labels_df
 
-def split_by_group_2(labels: pd.DataFrame, ratio: float):
+def split_by_group(labels: pd.DataFrame, ratio: float):
     """Splits data by Group randomly so that: data of a Group ONLY belong to a set. 
     Returns two tables, the first table's size is indicated by `ratio`.
     If ratio  == 0: return None, df
@@ -86,9 +86,11 @@ def split_by_group_2 (labels: pd.DataFrame(), ratio: float, step: int = 10):
     sorted_groups = list(group_counts.index)
     for i in range (0, len(sorted_groups), step):
         sub_list = sorted_groups[i:i + step]
-        l_1, l_2 = train_test_split (sub_list, train_size = ratio, random_state= RANDOM_STATE, shuffle= True)
-        g_1.extend(l_1)
-        g_2.extend(l_2)
+        if len(sub_list) >1:
+            l_1, l_2 = train_test_split (sub_list, train_size = ratio, random_state= RANDOM_STATE, shuffle= True)
+            g_1.extend(l_1)
+            g_2.extend(l_2)
+        else: g_1.extend(sub_list)
         
     df_1 = labels[labels['group_ID'].isin (g_1)]
     df_2 = labels[labels['group_ID'].isin (g_2)]
@@ -210,11 +212,11 @@ def build_dataset_3 (X_group_df: pd.DataFrame, X_technique_df:pd.DataFrame, y_df
     #### features for GROUPS
     for feature_name in [name for name in RAGGED_GROUP_FEATURES if name in selected_ragged_group_features]:
         feature_tf = tf.ragged.constant (X_group_df[feature_name].values, dtype= tf.string)
-        input_dict [feature_name] = feature_tf
+        input_dict [feature_name] = feature_tf    
     feature_tf = tf.constant (X_group_df[[INPUT_GROUP_INTERACTION_RATE]].values, dtype=tf.float32)
     input_dict [INPUT_GROUP_INTERACTION_RATE] = feature_tf
-    feature_tf = tf.convert_to_tensor (list(X_group_df[INPUT_GROUP_DESCRIPTION].values))
-    input_dict [INPUT_GROUP_DESCRIPTION] = feature_tf
+    # feature_tf = tf.convert_to_tensor (list(X_group_df[INPUT_GROUP_DESCRIPTION].values))
+    # input_dict [INPUT_GROUP_DESCRIPTION] = feature_tf
     
     #### features for TECHNIQUES
     for feature_name in [name for name in RAGGED_TECHNIQUE_FEATURES if name in selected_ragged_technique_features]:
@@ -222,8 +224,8 @@ def build_dataset_3 (X_group_df: pd.DataFrame, X_technique_df:pd.DataFrame, y_df
         input_dict [feature_name] = feature_tf
     feature_tf = tf.constant (X_technique_df[[INPUT_TECHNIQUE_INTERACTION_RATE]].values, dtype=tf.float32)
     input_dict [INPUT_TECHNIQUE_INTERACTION_RATE] = feature_tf
-    feature_tf = tf.convert_to_tensor (list(X_technique_df[INPUT_TECHNIQUE_DESCRIPTION].values))
-    input_dict [INPUT_TECHNIQUE_DESCRIPTION] = feature_tf
+    # feature_tf = tf.convert_to_tensor (list(X_technique_df[INPUT_TECHNIQUE_DESCRIPTION].values))
+    # input_dict [INPUT_TECHNIQUE_DESCRIPTION] = feature_tf
     
     y_tf = tf.convert_to_tensor(y_df.values, dtype = tf.float32)
     res_dataset = tf.data.Dataset.from_tensor_slices ((input_dict,y_tf))    
