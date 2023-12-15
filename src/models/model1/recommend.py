@@ -193,7 +193,7 @@ def get_interacted_tactic_range (interacted_techniques: list, look_up_table: pd.
         
 def extract_cisa_techniques (url: str) -> list:
     """Extract the techniques used by an advesary in a CISA Report url by web scraping.\n
-    The techniques are assumed to be stored in a `<table>` class and sorted by the report.
+    CAUTION: The techniques are assumed to be stored in `<table>` classes and sorted by the report. Manual confirmation is necessary.
 
     Args:
         url (str): Url of the CISA report
@@ -209,9 +209,6 @@ def extract_cisa_techniques (url: str) -> list:
         regex_pattern = re.compile(r'T\d{4}\.*\d*')
         for table in all_tables: 
             matched_elements = list (table.find_all(string=regex_pattern))
-            if len(matched_elements) >0 and len(filtered_strings)>0: 
-                print ('WARNING: Extracting Techniques from more than one table. Check the url.')
-                return
             if len(matched_elements) >0: filtered_strings.extend(matched_elements)
     else:
         print('Failed to fetch the webpage.')
