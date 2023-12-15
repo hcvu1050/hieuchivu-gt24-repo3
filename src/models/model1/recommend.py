@@ -22,7 +22,7 @@ def extract_technique_branch (model_name: str):
     input_technique_software_id =          keras.Input(shape=(None,), ragged=True, dtype= tf.string, name = 'input_technique_software_id')
     input_technique_tactics =              keras.Input(shape=(None,), ragged=True, dtype= tf.string, name = 'input_technique_tactics')
     input_technique_interaction_rate =     keras.Input(shape=(1,), dtype=tf.float32, name='input_technique_interaction_rate')
-    input_technique_description =          keras.Input(shape=(768,), dtype=tf.float32, name='input_technique_description')
+    # input_technique_description =          keras.Input(shape=(768,), dtype=tf.float32, name='input_technique_description')
 
     vectorize_software_id =              trained_model.vectorize_software_id
     vectorize_tactics =              trained_model.vectorize_tactics
@@ -93,7 +93,7 @@ def extract_technique_branch (model_name: str):
     concatenated_features = technique_concat (
         [
         input_technique_interaction_rate,
-        input_technique_description,
+        # input_technique_description,
         technique_data_sources,
         technique_detection_name,
         technique_mitigation_id,
@@ -109,7 +109,7 @@ def extract_technique_branch (model_name: str):
     sub_model = keras.models.Model (
         inputs = {
             'input_technique_interaction_rate' : input_technique_interaction_rate,
-            'input_technique_description' : input_technique_description,
+            # 'input_technique_description' : input_technique_description,
             'input_technique_data_sources' : input_technique_data_sources,
             'input_technique_detection_name' : input_technique_detection_name,
             'input_technique_mitigation_id' : input_technique_mitigation_id,
@@ -130,8 +130,8 @@ def build_technique_dataset (X_technique_df: pd.DataFrame()):
         input_dict [feature_name] = feature_tf
     feature_tf = tf.constant (X_technique_df[[INPUT_TECHNIQUE_INTERACTION_RATE]].values, dtype=tf.float32)
     input_dict [INPUT_TECHNIQUE_INTERACTION_RATE] = feature_tf
-    feature_tf = tf.convert_to_tensor (list(X_technique_df[INPUT_TECHNIQUE_DESCRIPTION].values))
-    input_dict [INPUT_TECHNIQUE_DESCRIPTION] = feature_tf
+    # feature_tf = tf.convert_to_tensor (list(X_technique_df[INPUT_TECHNIQUE_DESCRIPTION].values))
+    # input_dict [INPUT_TECHNIQUE_DESCRIPTION] = feature_tf
     
     res_dataset = tf.data.Dataset.from_tensor_slices (input_dict)
     return res_dataset

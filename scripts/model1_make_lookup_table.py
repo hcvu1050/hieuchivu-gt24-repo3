@@ -4,6 +4,7 @@ Make a look-up table (Technique -> List of most similar Techniques) based on lea
 
 import sys, os, argparse
 import pandas as pd
+import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 sys.path.append("..")
@@ -44,6 +45,9 @@ def main():
     ### get learned technique features, initialize interaction rate for unused technique, then create lookup table
     technique_features_dataset = technique_features_dataset.batch(32)
     learned_features = submodel.predict (technique_features_dataset)
+    np.save (
+        os.path.join (TARGET_PATH, r'{model_name}_learned_features.npy'.format (model_name = model_name))
+        , learned_features)
     look_up_table = make_look_up_table (learned_features, id_list)
     
     ### add earliest tactic stage to look-up table
