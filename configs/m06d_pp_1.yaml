@@ -1,0 +1,49 @@
+# Limit samples (optional)
+limit_samples_based_on_earliest_stage: True
+limit_samples_based_on_group_interaction: 10
+# Data splitting ratio for model1
+data_split: 
+  - 0.8
+  - 0
+  - 0.2
+  - 0
+
+selected_group_features:
+  - 'input_group_software_id'
+  # - 'input_group_description'
+selected_technique_features:
+  - 'input_technique_data_sources'
+  # - 'input_technique_defenses_bypassed'
+  - 'input_technique_detection_name'
+  - 'input_technique_mitigation_id'
+  # - 'input_technique_permissions_required'
+  - 'input_technique_platforms'
+  - 'input_technique_software_id'
+  - 'input_technique_tactics'
+  # - 'input_technique_description'
+
+limit_cardinality: ~
+limit_cardinality: "percentage"
+# limit_cardinality: "n_most_frequent"
+
+limit_group_features: 
+  input_group_software_id: 0.7
+  # input_group_tactics: 
+limit_technique_features: 
+  input_technique_data_sources: 0.7
+  # input_technique_defenses_bypassed: ~
+  input_technique_detection_name: 0.7
+  input_technique_mitigation_id: 0.7
+  # input_technique_permissions_required: 2
+  # input_technique_platforms: ~
+  input_technique_software_id: 0.7
+  # input_technique_tactics: ~
+
+include_edge_samples: False
+initialize_technique_interaction: 
+  - 'tactics'
+  - 'min'
+
+resampling: 
+  oversample: 0.2
+  undersample: 0.3

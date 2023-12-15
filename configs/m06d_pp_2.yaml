@@ -10,7 +10,7 @@ data_split:
 
 selected_group_features:
   - 'input_group_software_id'
-  - 'input_group_description'
+  # - 'input_group_description'
 selected_technique_features:
   - 'input_technique_data_sources'
   # - 'input_technique_defenses_bypassed'
@@ -20,7 +20,7 @@ selected_technique_features:
   - 'input_technique_platforms'
   - 'input_technique_software_id'
   - 'input_technique_tactics'
-  - 'input_technique_description'
+  # - 'input_technique_description'
 
 limit_cardinality: ~
 limit_cardinality: "percentage"
@@ -45,5 +45,5 @@ initialize_technique_interaction:
   - 'min'
 
 resampling: 
-  oversample: 0.2
-  undersample: 0.3
+  oversample: ~
+  undersample: 0.5

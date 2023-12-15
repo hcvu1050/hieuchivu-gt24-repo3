@@ -23,7 +23,7 @@ import os
 
 # Get the root directory of the project
 ROOT_FOLDER = os.path.dirname(os.path.dirname(os.path.abspath('__file__')))
-MITRE_ATTCK_FILE_PATH = os.path.join(ROOT_FOLDER, 'data/raw', 'enterprise-attack_v11.json')
+MITRE_ATTCK_FILE_PATH = os.path.join(ROOT_FOLDER, 'data/raw', 'enterprise-attack_v14.json')
 TARGET_PATH = os.path.join(ROOT_FOLDER, 'data/interim')
 PROCESS_RUNNING_MSG = "--runing {}".format(__name__)
 
