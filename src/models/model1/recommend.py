@@ -213,7 +213,7 @@ def extract_cisa_techniques (url: str) -> list:
     else:
         print('Failed to fetch the webpage.')
         return
-    return filtered_strings
+    return  [str(i) for i in filtered_strings]
 
 def get_cadidate_techniques (interacted_techniques: list,  look_up_table: pd.DataFrame(), n: int, mode: str = 'latest'):
     """From a list of interacted techniques: Returns a list of candidate techniques. \n
@@ -236,24 +236,34 @@ def get_cadidate_techniques (interacted_techniques: list,  look_up_table: pd.Dat
         candidate_techniques = list (candidate_table[candidate_table['technique_latest_stage'] >= earliest_interacted_stage]['technique_ID'].values)
     return candidate_techniques
 
-def get_report_data (report_codes: list):
+def get_report_data (reports: list):
     """get the a Table of interacted techniques in each CISA report given the list of report codes.
     Args:
-        report_codes (list): the list of report codes. code example 'aa22-277a'
+        report_codes (list): the list of report. each report is a dict storing (1) the report code and 
+        (2) a list of techniques that will not be used for evaluation
 
     """
     group_IDs = []
-    interacted_techniques = []
-    for report_code in report_codes:
-        url = 'https://www.cisa.gov/news-events/cybersecurity-advisories/' + report_code
-        group_IDs.append(report_code)
-        interacted_techniques.append (extract_cisa_techniques (url))
+    reported_techniques = []
+    passive_techniques = []
+    active_techniques = []
+    for report in reports:
+        url = 'https://www.cisa.gov/news-events/cybersecurity-advisories/' + report['code']
+        group_IDs.append(report['code'])
+        all_techniques  = extract_cisa_techniques (url)
+        reported_techniques.append (all_techniques[:])
+        passive_techniques.append(report['passive_techniques'])
+        if report['passive_techniques'] is not None:
+            for technique in report['passive_techniques']:
+                if technique in all_techniques: all_techniques.remove (technique)
+        active_techniques.append(all_techniques)
     data = {
         'group_ID': group_IDs,
-        'interacted_techniques': interacted_techniques
+        'reported_techniques': reported_techniques,
+        'passive_techniques': passive_techniques,
+        'active_techniques': active_techniques,
     }
     report_data = pd.DataFrame (data=data)
-    report_data['interacted_techniques'] = report_data['interacted_techniques'].apply (lambda x: [str(i) for i in x])
     return report_data
 
 def make_test_data (report_data: pd.DataFrame, look_up_table: pd.DataFrame(), n: int = 200, mode: str = 'latest'):

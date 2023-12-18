@@ -1,6 +1,13 @@
-report_codes:
-  - 'aa22-277a'
-  - 'aa22-138b'
-  - 'aa22-174a'
-look_up_table: 'm06c_1_1'
-n: 300
+reports:
+  - code: 'aa23-347a'
+    passive_techniques:  
+      - 'T1590.004'
+      - 'T1592.002'
+  - code: 'aa23-201a'
+    passive_techniques: 
+      - 'T1584'
+      - 'T1588.002'
+  - code: 'aa22-174a'
+    passive_techniques: ~
+# look_up_table: 'm06c_1_1'
+# n: 300
