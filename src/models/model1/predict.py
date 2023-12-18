@@ -254,22 +254,20 @@ def build_detected_group_profile (processed_group_features: pd.DataFrame(),
                                   detected_techniques: list , threshold: int,
                                   train_labels: pd.DataFrame(), 
                                   group_id: str, settings: dict):
-    """Build features for a detected group, including:
-    1. Description embedding: equals to the avg pooling of the processed groups' embeddings\n
-    2. Interaction rate: equals to the avg or min interaction rate of the interacted groups\n
-    3. Interacted tactics: average tactic interaction rate for each tactic from the interacted groups\n
-    4. Used software: the N most commonly used software, where N is the number of average software used by interacted groups\n
-    Args:
-        processed_group_features (pd.DataFrame): _description_
-        label_df (pd.DataFrame): _description_
-        new_group_id (str): _description_
-        settings (dict): _description_
+    """ 
+    Build features for a newly detected group, including:
+    1. Interaction rate (float): the initial value equals to the avg or min interaction rate of the interacted groups\n
+    2. Interacted tactics (list of tactics): initial value: for each tactic from the interacted groups, the number of tactic interaction is the average number of interactions for that tactic\n
+    3. Used software (list of software): initial value: the N most commonly used software, where N is the number of average software used by interacted groups\n
 
-    Returns:
-        _type_: _description_
+    Args:
+        settings (dict): `'initial_interaction'`: set the initial interaction rate of the new group to the avg or min of the rate of train set
+
     """
+
     group_interaction_count = len(detected_techniques)
     
+    # make a standard scaler, fit on train set's distribution
     pos_y = train_labels[train_labels['label'] == 1]
     train_interaction_count = pos_y['group_ID'].value_counts()
     scaler = StandardScaler()
@@ -277,9 +275,8 @@ def build_detected_group_profile (processed_group_features: pd.DataFrame(),
     
     interacted_groups = list(pos_y['group_ID'].unique())
     interacted_group_features = processed_group_features [processed_group_features['group_ID'].isin(interacted_groups)]    
-    ### 👉 group description equals to to average pooling of all group description embeddings this value is kept the same no matter the threshold
-    group_description = interacted_group_features['input_group_description'].apply(pd.Series).mean().tolist()
     
+    # get the list of most frequent software from train set
     avg_software_interaction_rate = interacted_group_features['input_group_software_id'].apply(len).mean().round().astype(int)
     most_frequent_software = interacted_group_features['input_group_software_id'].explode().value_counts().sort_values(ascending = False)
     most_frequent_software = list(most_frequent_software.index)
@@ -292,9 +289,9 @@ def build_detected_group_profile (processed_group_features: pd.DataFrame(),
     
     ### 👉 Assign initial values if group has interaction count less than threshold 
     if group_interaction_count < threshold:
-        if settings['interaction'] == 'min':
+        if settings['initial_interaction'] == 'min':
             group_interaction_rate = (interacted_group_features['input_group_interaction_rate']).min()
-        elif settings['interaction'] == 'avg':
+        elif settings['initial_interaction'] == 'avg':
             group_interaction_rate = (interacted_group_features['input_group_interaction_rate']).mean()
         
         avg_tactic_rate = interacted_group_features['input_group_tactics'].explode().value_counts()/len(interacted_groups)
@@ -317,7 +314,6 @@ def build_detected_group_profile (processed_group_features: pd.DataFrame(),
         'group_ID': group_id,
         'input_group_software_id': group_software,
         'input_group_tactics': group_interacted_tactics,
-        'input_group_description': [group_description],
         'input_group_interaction_rate': group_interaction_rate,
         
     }
