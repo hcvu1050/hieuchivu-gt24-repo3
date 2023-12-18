@@ -290,9 +290,9 @@ def build_detected_group_profile (processed_group_features: pd.DataFrame(),
     ### 👉 Assign initial values if group has interaction count less than threshold 
     if group_interaction_count < threshold:
         if settings['initial_interaction'] == 'min':
-            group_interaction_rate = (interacted_group_features['input_group_interaction_rate']).min()
+            group_interaction_rate = scaler.transform(np.array(train_interaction_count.min()).reshape(1, -1)).item()
         elif settings['initial_interaction'] == 'avg':
-            group_interaction_rate = (interacted_group_features['input_group_interaction_rate']).mean()
+            group_interaction_rate = 0
         
         avg_tactic_rate = interacted_group_features['input_group_tactics'].explode().value_counts()/len(interacted_groups)
         rounded_avg_tactic_rate = avg_tactic_rate.round().astype(int)
