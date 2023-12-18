@@ -8,7 +8,7 @@ sys.path.append("..")
 ROOT_FOLDER = os.path.dirname(os.path.dirname(os.path.abspath('__file__')))
 CONFIG_FOLDER = os.path.join (ROOT_FOLDER, 'configs')
 TARGET_PATH = os.path.join(ROOT_FOLDER, 'data/test')
-from src.models.model1.recommend import get_report_data #, get_candidate_techniques
+from src.models.model1.evaluate import get_report_data #, get_candidate_techniques
 from src.data.utils import batch_save_df_to_pkl
 def main():
     #### PARSING ARGS

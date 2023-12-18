@@ -8,7 +8,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 sys.path.append("..")
-from src.models.model1.recommend import extract_technique_branch, build_technique_dataset, make_look_up_table, get_technique_tatic_stage
+from src.models.model1.evaluate import extract_technique_branch, build_technique_dataset, make_look_up_table, get_technique_tatic_stage
 ROOT_FOLDER = os.path.dirname(os.path.dirname(os.path.abspath('__file__')))
 TRAINED_MODELS_FOLDER = os.path.join (ROOT_FOLDER, 'trained_models', 'model1')
 TARGET_PATH = os.path.join(ROOT_FOLDER, 'data/lookup_tables')
