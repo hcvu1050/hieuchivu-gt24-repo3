@@ -40,6 +40,6 @@ def main():
         'report_data': report_data,
         # 'test_data': test_data,
     }
-    batch_save_df_to_pkl (file_name_dfs = data, target_path= TARGET_PATH)
+    batch_save_df_to_pkl (file_name_dfs = data, target_path= TARGET_PATH, prefix=args.config )
 if __name__ == '__main__':
     main()
