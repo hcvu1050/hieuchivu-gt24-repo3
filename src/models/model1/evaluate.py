@@ -22,7 +22,7 @@ def _extract_cisa_techniques (url: str) -> list:
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
         all_tables = soup.find_all('table')
-        regex_pattern = re.compile(r'T\d{4}\.*\d*')
+        regex_pattern = re.compile(r'T\d{4}(\.\d{3})?')
         for table in all_tables: 
             matched_elements = list (table.find_all(string=regex_pattern))
             if len(matched_elements) >0: filtered_strings.extend(matched_elements)
