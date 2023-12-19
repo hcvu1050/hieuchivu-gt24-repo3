@@ -306,8 +306,9 @@ def build_detected_group_profile (processed_group_features: pd.DataFrame(),
         
         detected_techniques_features = processed_technique_features[processed_technique_features['technique_ID'].isin (detected_techniques)]
         group_interacted_tactics = [list (detected_techniques_features['input_technique_tactics'].explode().values)]
-        possible_software = detected_techniques_features['input_technique_software_id'].explode().unique()
-        possible_software = [software for software in possible_software if software in most_frequent_software[0:avg_software_interaction_rate]]
+        possible_software = [list(detected_techniques_features['input_technique_software_id'].explode().unique())]
+        # possible_software = detected_techniques_features['input_technique_software_id'].explode().unique()
+        # possible_software = [software for software in possible_software if software in most_frequent_software[0:avg_software_interaction_rate]]
         group_software = [list (detected_techniques_features['input_technique_software_id'].explode().unique())]
     
     values = {
