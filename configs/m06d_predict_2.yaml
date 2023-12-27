@@ -1,5 +1,5 @@
-report_file_name: 'cisa_1_report_data'
+report_file_name: 'cisa_2_report_data'
 model_name: 'm06d_1_2_a'
-group_profile_update_threshold: 1
+group_profile_update_threshold: 5
 initial_group_profile_settings:
   initial_interaction: 'avg'

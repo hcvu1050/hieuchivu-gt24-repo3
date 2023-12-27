@@ -2,10 +2,10 @@ reports:
   - code: 'aa23-339a'
     passive_techniques:
       - 'T1046'
-  - code: 'aa23-201a'
-    passive_techniques:
-      - 'T1584' 
-      - 'T1588.002'
+  # - code: 'aa23-201a'
+  #   passive_techniques:
+  #     - 'T1584' 
+  #     - 'T1588.002'
   - code: 'aa22-320a'
     passive_techniques: ~
   - code: 'aa23-074a'

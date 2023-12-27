@@ -1,0 +1,6 @@
+reports: 
+  # - code: 'aa22-335'
+  #   passive_techniques:
+  #     - 'T1584.001'
+  - code: 'aa22-321a'
+    passive_techniques: ~
